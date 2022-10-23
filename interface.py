@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+import os,glob
 
 
 gui = Tk()
@@ -32,9 +33,10 @@ class FolderSelect(Frame):
 
 def loadFile():
     folder1 = directorySelect.folder_path
-    print("Doing stuff with folder", folder1)
-
-folderPath = StringVar()
+    os.chdir(folder1)
+    print("Creating table files based on...")
+    for file in glob.glob("*.sql"):
+        print(file)
 
 directorySelect = FolderSelect(gui,"Select Folder ")
 directorySelect.grid(row=0)
@@ -44,5 +46,6 @@ load.grid(row=4,column=0)
 
 quitter = ttk.Button(gui, text = "Quit",command = gui.quit)
 quitter.grid(row=5,column=0)
+
 
 gui.mainloop()
