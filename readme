@@ -1,0 +1,3 @@
+Graphical toll for database management
+
+This python based toll, uses Tkinter to connect to a database directory, load the data in files and execute commands.
