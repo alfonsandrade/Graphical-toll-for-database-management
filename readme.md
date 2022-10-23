@@ -1,1 +1,1 @@
-Graphical toll python bases dor database management
+Graphical python toll for database management
