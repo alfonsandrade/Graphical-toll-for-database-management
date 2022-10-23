@@ -30,7 +30,7 @@ class FolderSelect(Frame):
     def folder_path(self):
         return self.folderPath.get()
 
-def doStuff():
+def loadFile():
     folder1 = directorySelect.folder_path
     print("Doing stuff with folder", folder1)
 
@@ -39,7 +39,7 @@ folderPath = StringVar()
 directorySelect = FolderSelect(gui,"Select Folder ")
 directorySelect.grid(row=0)
 
-load = ttk.Button(gui, text="Load", command=doStuff)
+load = ttk.Button(gui, text="Load", command=loadFile)
 load.grid(row=4,column=0)
 
 quitter = ttk.Button(gui, text = "Quit",command = gui.quit)
