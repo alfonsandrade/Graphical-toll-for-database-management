@@ -4,9 +4,12 @@ from tkinter import filedialog
 
 
 gui = Tk()
-gui.geometry("400x400")
-gui.title("GH no glutêo")
+gui.geometry("400x200")
+gui.title("Folder selection")
+icon = PhotoImage(file = 'icon.png')
+gui.iconphoto(False, icon)
 class FolderSelect(Frame):
+    
     def __init__(self,parent=None,folderDescription="",**kw):
         Frame.__init__(self,master=parent,**kw)
         self.folderPath = StringVar()
