@@ -6,7 +6,7 @@ from Table import Table
 
 class Database:
     def __init__(self, dirPath : str):
-        self.tables = {}
+        self.tables = []
         tablesIterator = 0
 
         for root, direcs, files in os.walk(dirPath):
@@ -15,7 +15,7 @@ class Database:
 
                 if filePath.endswith(".csv"):
                     newTable = Table(file, filePath)
-                    self.tables[tablesIterator] = newTable
+                    self.tables.append(newTable)
                     tablesIterator += 1
 
     def searchLoop(self):
@@ -32,6 +32,10 @@ class Database:
 
             print(query)
 
+            isQueryOk = self.verifyPointCommaInTheEnd(query)
+            if isQueryOk == False:
+                continue
+
             result = self.queryTreatment(query)
 
             whatToSelect = result[0]
@@ -43,29 +47,39 @@ class Database:
             order_by     = result[3]
             print(order_by)
 
-            # if whatToSelect == {}:
+            isQueryOk = self.isQuerySintaxOk(whatToSelect, selectFrom, where, order_by)
+            if isQueryOk == False:
+                print("There is an error in your SQL sintax.")
+                continue
+
+            # if whatToSelect == []:
             #     continue
             # elif whatToSelect[0] == "*":
-            #     if where == {} and order_by == {}:
+            #     if where == [] and order_by == []:
             #         # Select * from chosen
-            #     elif where == {}:
+            #     elif where == []:
             #         # Select * from chosen order by chum
-            #     elif order_by == {}:
+            #     elif order_by == []:
             #         # Select * from chosen where apoaisnvaosid
             #     else:
             #         # Select * from chosen where paosdvaso order by oasivaosi
             # else:
-            #     if where == {} and order_by == {}:
+            #     if where == [] and order_by == []:
             #         # Select * from chosen
-            #     elif where == {}:
+            #     elif where == []:
             #         # Select * from chosen order by chum
-            #     elif order_by == {}:
+            #     elif order_by == []:
             #         # Select * from chosen where apoaisnvaosid
             #     else:
             #         # Select * from chosen where paosdvaso order by oasivaosi
 
 
-
+    def verifyPointCommaInTheEnd(self, query):
+        if ';' in query[len(query) - 1]:
+            return True
+        else:
+            print("There is an error in your SQL sintax. Expected ';'.")
+            return False
 
 
     def queryTreatment(self, query):
@@ -74,44 +88,62 @@ class Database:
         where = []
         order_by = []
         
-        iterator = 0
+        query[len(query) - 1] = query[len(query) - 1][:-1]
+
+        iterator  = 0
+        # Used to sinalize what part of the query the iterator is currently running
+        # 1 - select
+        # 2 - from
+        # 3 - where
+        # 4 - order by
+        semaphore = 0 
         while iterator < len(query):
-            if query[iterator] == "select":
-                selecWhat = iterator + 1
-                while query[selecWhat] != "from":
-                    whatToSelect.append(query[selecWhat])
-                    selecWhat += 1
-
-                iterator = selecWhat
-            
-            if query[iterator] == "from":
-                fromWhat = iterator + 1
-                while query[fromWhat] != "where" or query[fromWhat] != ";":
-                    selectFrom.append(query[fromWhat])
-                    fromWhat += 1
-
-                iterator = fromWhat
-
-            if query[iterator] == "where":
-                filters = iterator + 1
-                while query[filters] != "order" or query[filters] != ";":
-                    where.append(query[filters])
-                    filters += 1
-
-                iterator = filters
-
-            if query[iterator] == "order":
-                ordering = iterator + 2
-                while query[ordering] != ";":
-                    order_by.append(query[ordering])
-                    ordering += 1
-
-                iterator = ordering
+            if query[iterator].lower() == "select":
+                semaphore = 1
+            elif query[iterator].lower() == "from":
+                semaphore = 2
+            elif query[iterator].lower() == "where":
+                semaphore = 3
+            elif query[iterator].lower() == "order":
+                semaphore = 4
+                iterator += 1 # To jump the "by" word
+            else:
+                if semaphore == 1:
+                    whatToSelect.append(query[iterator])
+                elif semaphore == 2:
+                    selectFrom.append(query[iterator])
+                elif semaphore == 3:
+                    where.append(query[iterator])
+                elif semaphore == 4:
+                    order_by.append(query[iterator])
+                else:
+                    pass
 
             iterator += 1
 
         return whatToSelect, selectFrom, where, order_by
 
-    def resultingSelect(whatToSelect,selectFrom,where,order_by):
+    def isQuerySintaxOk(self, whatToSelect, selectFrom, where, order_by):
+        sintaxOk = False
+        
+        # Finds table to be used
+        for table in self.tables:
+            if table.tableName == selectFrom[0]:
+                usedTable = table
+                sintaxOk  = True
+
+        # Checks rathen attrbutes do exist in the table
+        if whatToSelect[0] != '*' and sintaxOk == True:
+            for attribute in whatToSelect:
+                if attribute not in usedTable.collumnNames:
+                    sintaxOk = False
+
+        if order_by != [] and order_by[0] not in whatToSelect:
+            sintaxOk = False
+
+        return sintaxOk
+
+
+    def resultingSelect(whatToSelect, selectFrom, where, order_by):
 
         return 0

@@ -26,4 +26,5 @@ class Table:
             iterator += 1
 
         self.collumnNames = dataInFile[0]
+        print(self.collumnNames)
         self.tableContent = dataInFile[1:]
