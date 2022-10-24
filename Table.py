@@ -4,7 +4,8 @@ import re
 
 class Table:
     def __init__(self, fileName: str, filePath: str):
-        self.tableName = fileName - ".csv"
+        self.tableName = fileName[:-4]
+        print(self.tableName)
 
         fileContent = open(filePath, 'r')
 
@@ -17,10 +18,10 @@ class Table:
 
         # Removes '\n' from the last collumn
         iterator = 0
-        colQnt = len(dataInFile[0])
+        lastCol = len(dataInFile[0]) - 1
         while iterator < rowQnt:
-            string = dataInFile[iterator][colQnt]
-            dataInFile[iterator][colQnt] = string[:-1]
+            string = dataInFile[iterator][lastCol]
+            dataInFile[iterator][lastCol] = string[:-1]
 
             iterator += 1
 

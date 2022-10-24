@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+from Database import Database
 import os,glob
 
 
@@ -34,9 +35,15 @@ class FolderSelect(Frame):
 def loadFile():
     folder1 = directorySelect.folder_path
     os.chdir(folder1)
+    print(folder1)
+
+
     print("Creating table files based on...")
-    for file in glob.glob("*.sql"):
+    for file in glob.glob("*.csv"):
         print(file)
+        
+    dataBase = Database(folder1)
+    dataBase.searchLoop()
 
 directorySelect = FolderSelect(gui,"Select Folder ")
 directorySelect.grid(row=0)

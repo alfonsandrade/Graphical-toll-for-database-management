@@ -7,25 +7,30 @@ from Table import Table
 class Database:
     def __init__(self, dirPath : str):
         self.tables = {}
+        tablesIterator = 0
 
-        for root, direc, file in os.walk(dirPath):
-            filePath = os.path.join(root, direc, file)
+        for root, direcs, files in os.walk(dirPath):
+            for file in files:
+                filePath = os.path.join(root, file)
 
-            if filePath.endswith(".csv"):
-                newTable = Table(file, filePath)
-                self.tables.append(newTable)
+                if filePath.endswith(".csv"):
+                    newTable = Table(file, filePath)
+                    self.tables[tablesIterator] = newTable
+                    tablesIterator += 1
 
     def searchLoop(self):
         query = "nop"
-        whatToSelect = {}
-        selectFrom = {}
-        where = {}
-        order_by = {}
+        whatToSelect = []
+        selectFrom = []
+        where = []
+        order_by = []
 
         # Mainloop for searching in database
         while query != "quit;":
             query = input()
             query = query.split(' ')
+
+            print(query)
 
             result = self.queryTreatment(query)
 
@@ -38,36 +43,36 @@ class Database:
             order_by     = result[3]
             print(order_by)
 
-            if whatToSelect == {}:
-                continue
-            elif whatToSelect[0] == "*":
-                if where == {} and order_by == {}:
-                    # Select * from chosen
-                elif where == {}:
-                    # Select * from chosen order by chum
-                elif order_by == {}:
-                    # Select * from chosen where apoaisnvaosid
-                else:
-                    # Select * from chosen where paosdvaso order by oasivaosi
-            else:
-                if where == {} and order_by == {}:
-                    # Select * from chosen
-                elif where == {}:
-                    # Select * from chosen order by chum
-                elif order_by == {}:
-                    # Select * from chosen where apoaisnvaosid
-                else:
-                    # Select * from chosen where paosdvaso order by oasivaosi
+            # if whatToSelect == {}:
+            #     continue
+            # elif whatToSelect[0] == "*":
+            #     if where == {} and order_by == {}:
+            #         # Select * from chosen
+            #     elif where == {}:
+            #         # Select * from chosen order by chum
+            #     elif order_by == {}:
+            #         # Select * from chosen where apoaisnvaosid
+            #     else:
+            #         # Select * from chosen where paosdvaso order by oasivaosi
+            # else:
+            #     if where == {} and order_by == {}:
+            #         # Select * from chosen
+            #     elif where == {}:
+            #         # Select * from chosen order by chum
+            #     elif order_by == {}:
+            #         # Select * from chosen where apoaisnvaosid
+            #     else:
+            #         # Select * from chosen where paosdvaso order by oasivaosi
 
 
 
 
 
     def queryTreatment(self, query):
-        whatToSelect = {}
-        selectFrom = {}
-        where = {}
-        order_by = {}
+        whatToSelect = []
+        selectFrom = []
+        where = []
+        order_by = []
         
         iterator = 0
         while iterator < len(query):
@@ -108,3 +113,5 @@ class Database:
         return whatToSelect, selectFrom, where, order_by
 
     def resultingSelect(whatToSelect,selectFrom,where,order_by):
+
+        return 0
