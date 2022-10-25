@@ -21,14 +21,18 @@ class Database:
     def searchLoop(self):
         query = "nop"
         whatToSelect = []
-        selectFrom = []
-        where = []
-        order_by = []
+        selectFrom   = []
+        where        = []
+        order_by     = []
 
         # Mainloop for searching in database
-        while query != "quit;":
+        while query[0] != "quit;":
+            print("> ")
             query = input()
             query = query.split(' ')
+
+            if query[0] == "quit;":
+                break
 
             print(query)
 
@@ -39,27 +43,25 @@ class Database:
             result = self.queryTreatment(query)
 
             whatToSelect = result[0]
-            print(whatToSelect )
             selectFrom   = result[1]
-            print(selectFrom)
             where        = result[2]
-            print(where)
             order_by     = result[3]
+            print(whatToSelect )
+            print(selectFrom)
+            print(where)
             print(order_by)
 
             isQueryOk = self.isQuerySintaxOk(whatToSelect, selectFrom, where, order_by)
             if isQueryOk == False:
-                print("There is an error in your SQL sintax.")
                 continue
 
-            # if whatToSelect == []:
-            #     continue
-            # elif whatToSelect[0] == "*":
-            #     if where == [] and order_by == []:
-            #         # Select * from chosen
+            if whatToSelect[0] == "*":
+                if where == [] and order_by == []:
+                    # Select * from chosen
+                    self.selectAllFrom(selectFrom)
             #     elif where == []:
             #         # Select * from chosen order by chum
-            #     elif order_by == []:
+                # elif order_by == []:
             #         # Select * from chosen where apoaisnvaosid
             #     else:
             #         # Select * from chosen where paosdvaso order by oasivaosi
@@ -73,8 +75,10 @@ class Database:
             #     else:
             #         # Select * from chosen where paosdvaso order by oasivaosi
 
+        return
 
-    def verifyPointCommaInTheEnd(self, query):
+
+    def verifyPointCommaInTheEnd(self, query) -> bool:
         if ';' in query[len(query) - 1]:
             return True
         else:
@@ -82,16 +86,18 @@ class Database:
             return False
 
 
+    # Devides the query into four arrays, the ones declared down below
     def queryTreatment(self, query):
         whatToSelect = []
-        selectFrom = []
-        where = []
-        order_by = []
+        selectFrom   = []
+        where        = []
+        order_by     = []
         
         query[len(query) - 1] = query[len(query) - 1][:-1]
 
         iterator  = 0
-        # Used to sinalize what part of the query the iterator is currently running
+
+        # Semaphore used to sinalize what part of the query the iterator is currently running on
         # 1 - select
         # 2 - from
         # 3 - where
@@ -127,23 +133,63 @@ class Database:
         sintaxOk = False
         
         # Finds table to be used
-        for table in self.tables:
-            if table.tableName == selectFrom[0]:
-                usedTable = table
-                sintaxOk  = True
+        if whatToSelect == []:
+            print("There is nothing to select.")
+        elif selectFrom == []:
+            print("No table to select from.")
+        else:
+            for table in self.tables:
+                if table.tableName == selectFrom[0]:
+                    usedTable = table
+                    sintaxOk  = True
+            # Relations table was not found
+            if sintaxOk == False:
+                print("Error: no table called " + selectFrom[0] + " was found.")
 
-        # Checks rathen attrbutes do exist in the table
-        if whatToSelect[0] != '*' and sintaxOk == True:
-            for attribute in whatToSelect:
-                if attribute not in usedTable.collumnNames:
-                    sintaxOk = False
 
-        if order_by != [] and order_by[0] not in whatToSelect:
-            sintaxOk = False
+            # Checks rathen attrbutes do exist in the table
+            if whatToSelect[0] != '*' and sintaxOk == True:
+                for attribute in whatToSelect:
+                    if attribute not in usedTable.collumnNames:
+                        print("Error: there is no " + attribute + " in " + usedTable.tableName)
+                        sintaxOk = False
+
+            if order_by != [] and order_by[0] not in whatToSelect:
+                print("There is an error in your SQL sintax.")
+                sintaxOk = False
 
         return sintaxOk
 
+    ########################## QUERY ALGORYTHMS ###############################
 
-    def resultingSelect(whatToSelect, selectFrom, where, order_by):
+    # select * from something
+    def selectAllFrom(self, selectFrom):
+        for table in self.tables:
+            if table.tableName == selectFrom[0]:
+                tableToUse = table
 
-        return 0
+        print("/           " + tableToUse.tableName + "              /")
+        print(tableToUse.collumnNames)
+        for line in tableToUse.tableContent:
+            print(line)
+
+        print("\n")
+
+        return
+
+    def selectAllFromWhere(self, selectFrom, where):
+        opperand            = ""
+        comparations        = []
+        attributesToCompare = []
+
+        # for word in where:
+
+        
+        for table in self.tables:
+            if table.tableName == selectFrom[0]:
+                tableToUse = table
+
+        print("/           " + tableToUse.tableName + "              /")
+        print(tableToUse.collumnNames)
+
+        return
