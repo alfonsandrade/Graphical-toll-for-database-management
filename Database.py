@@ -92,8 +92,12 @@ class Database:
         selectFrom   = []
         where        = []
         order_by     = []
-        
-        query[len(query) - 1] = query[len(query) - 1][:-1]
+
+        # Removes ; from the last word or removes it completely if it's only a ;
+        if len(query[len(query) - 1]) > 1:
+            query[len(query) - 1] = query[len(query) - 1][:-1]
+        else:
+            query = query[:-1]
 
         iterator  = 0
 
