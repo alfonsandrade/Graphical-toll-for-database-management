@@ -4,9 +4,6 @@ import re
 
 class Table:
     def __init__(self, fileName: str, filePath: str):
-        self.tableName = fileName[:-4]
-        print(self.tableName)
-
         fileContent = open(filePath, 'r')
 
         # Creating a matrix with all the info
@@ -25,7 +22,13 @@ class Table:
 
             iterator += 1
 
-        self.collumnNames = dataInFile[0]
+        self.tableName = fileName[:-4]
+        print(self.tableName)
+        self.collumnNames = {}
+        iterator = 0
+        for data in dataInFile[0]:
+            self.collumnNames[data] = iterator
+            iterator += 1
         print(self.collumnNames)
         self.tableContent = dataInFile[1:]
 
