@@ -38,7 +38,7 @@ class Database:
 
         # Mainloop for searching in database
         while query[0] != "quit;":
-            print("> ")
+            print("> ", end = '')
             query = input()
             query = query.split(' ')
 
@@ -57,10 +57,6 @@ class Database:
             selectFrom   = result[1]
             where        = result[2]
             order_by     = result[3]
-            print(whatToSelect )
-            print(selectFrom)
-            print(where)
-            print(order_by)
 
             isQueryOk = self.isQuerySintaxOk(whatToSelect, selectFrom, where, order_by)
             if isQueryOk == False:
@@ -76,8 +72,9 @@ class Database:
                 elif order_by == []:
                     # Select * from chosen where lalos < ligos
                     self.selectAllFromWhere(selectFrom, where)
-            #     else:
-            #         # Select * from chosen where paosdvaso order by oasivaosi
+                else:
+                    # Select * from chosen where paosdvaso order by oasivaosi
+                    self.selectAllFromWhereOrderBy(selectFrom, where, order_by)
             # else:
             #     if where == [] and order_by == []:
             #         # Select * from chosen
@@ -87,6 +84,8 @@ class Database:
             #         # Select * from chosen where apoaisnvaosid
             #     else:
             #         # Select * from chosen where paosdvaso order by oasivaosi
+
+        print("Bye")
 
         return
 
@@ -185,9 +184,10 @@ class Database:
             if table.tableName == selectFrom[0]:
                 tableToUse = table
 
-        print("/           " + tableToUse.tableName + "              /")
+        print("/                " + tableToUse.tableName + "                /")
+        print("/", end = '')
         for line in tableToUse.collumnNames:
-            print(line + "   /", end = '')
+            print("  "+line + "  /", end = '')
         print("")
         for line in tableToUse.tableContent:
             print(line)
@@ -196,6 +196,7 @@ class Database:
 
         return
 
+    # select * from something order by something
     def selectAllFromOrderBy(self, selectFrom, order_by):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
@@ -203,15 +204,17 @@ class Database:
 
         orderedTable = self.mergeSortByCollumn(tableToUse.tableContent, 0, len(tableToUse.tableContent)-1, tableToUse.collumnNames[order_by[0]])
 
-        print("/           " + tableToUse.tableName + "              /")
+        print("/                " + tableToUse.tableName + "                /")
+        print("/", end = '')
         for line in tableToUse.collumnNames:
-            print(line + "   /", end = '')
+            print("  "+line + "  /", end = '')
         print("")
         for line in orderedTable:
             print(line)
 
-        return
+        return 
 
+    # select * from something where something < 78
     def selectAllFromWhere(self, selectFrom, where):        
         for table in self.tables:
             if table.tableName == selectFrom[0]:
@@ -220,9 +223,33 @@ class Database:
         filteredTable = self.manageWhere(where, tableToUse)
 
         if filteredTable != []:
-            print("/           " + tableToUse.tableName + "              /")
+            print("/                " + tableToUse.tableName + "                /")
+            print("/", end = '')
             for line in tableToUse.collumnNames:
-                print(line + "   /", end = '')
+                print("  "+line + "  /", end = '')
+            print("")
+            for line in filteredTable:
+                print(line)
+        else:
+            pass
+
+        print("\n")
+
+        return
+
+    def selectAllFromWhereOrderBy(self, selectFrom, where, order_by):
+        for table in self.tables:
+            if table.tableName == selectFrom[0]:
+                tableToUse = table
+
+        filteredTable = self.manageWhere(where, tableToUse)
+        filteredTable = self.mergeSortByCollumn(filteredTable, 0, len(filteredTable)-1, tableToUse.collumnNames[order_by[0]])
+
+        if filteredTable != []:
+            print("/                " + tableToUse.tableName + "                /")
+            print("/", end = '')
+            for line in tableToUse.collumnNames:
+                print("  "+line + "  /", end = '')
             print("")
             for line in filteredTable:
                 print(line)
@@ -238,7 +265,7 @@ class Database:
             i = left
             leftAux = left
             j = middle+1
-            tableAux = table
+            tableAux = [0] * len(table)
             while (i <= middle and j <= right):
                 if (table[i][collumnNum] <= table[j][collumnNum]):
                     tableAux[leftAux] = table[i]
@@ -266,7 +293,7 @@ class Database:
 
         half = 0
         if (left < right):
-            half = (left+right)/2
+            half = (left+right)//2
             table = self.mergeSortByCollumn(table, left, half, collumnNum)
             table = self.mergeSortByCollumn(table, half+1, right, collumnNum)
             table = telettubies(table, left, half, right, collumnNum)
