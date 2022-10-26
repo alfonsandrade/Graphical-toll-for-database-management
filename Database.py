@@ -2,6 +2,8 @@ import sys
 import os
 import re
 
+sys.setrecursionlimit(1000)
+
 from Table import Table
 
 class Database:
@@ -24,8 +26,8 @@ class Database:
         self.operatorsDict["!="] = lambda a, b: a != b
         self.operatorsDict["<"]  = lambda a, b: a < b
         self.operatorsDict[">"]  = lambda a, b: a > b
-        self.operatorsDict[">="]  = lambda a, b: a >= b
-        self.operatorsDict["<="]  = lambda a, b: a <= b
+        self.operatorsDict[">="] = lambda a, b: a >= b
+        self.operatorsDict["<="] = lambda a, b: a <= b
 
     def searchLoop(self):
         query = "nop"
@@ -68,8 +70,9 @@ class Database:
                 if where == [] and order_by == []:
                     # Select * from chosen
                     self.selectAllFrom(selectFrom)
-            #     elif where == []:
-            #         # Select * from chosen order by chum
+                elif where == []:
+                    # Select * from chosen order by chum
+                    self.selectAllFromOrderBy(selectFrom, order_by)
                 elif order_by == []:
                     # Select * from chosen where lalos < ligos
                     self.selectAllFromWhere(selectFrom, where)
@@ -162,13 +165,13 @@ class Database:
 
 
             # Checks rathen attrbutes do exist in the table
-            if whatToSelect[0] != '*' and sintaxOk == True:
+            if sintaxOk == True and whatToSelect[0] != '*':
                 for attribute in whatToSelect:
                     if attribute not in usedTable.collumnNames:
                         print("Error: there is no " + attribute + " in " + usedTable.tableName + "\n")
                         sintaxOk = False
 
-            if order_by != [] and order_by[0] not in whatToSelect:
+            if sintaxOk == True and order_by != [] and whatToSelect[0] != '*' and order_by[0] not in whatToSelect:
                 print("There is an error in your SQL sintax.\n")
                 sintaxOk = False
 
@@ -193,7 +196,84 @@ class Database:
 
         return
 
-    def selectAllFromWhere(self, selectFrom, where):
+    def selectAllFromOrderBy(self, selectFrom, order_by):
+        for table in self.tables:
+            if table.tableName == selectFrom[0]:
+                tableToUse = table
+
+        orderedTable = self.mergeSortByCollumn(tableToUse.tableContent, 0, len(tableToUse.tableContent)-1, tableToUse.collumnNames[order_by[0]])
+
+        print("/           " + tableToUse.tableName + "              /")
+        for line in tableToUse.collumnNames:
+            print(line + "   /", end = '')
+        print("")
+        for line in orderedTable:
+            print(line)
+
+        return
+
+    def selectAllFromWhere(self, selectFrom, where):        
+        for table in self.tables:
+            if table.tableName == selectFrom[0]:
+                tableToUse = table
+
+        filteredTable = self.manageWhere(where, tableToUse)
+
+        if filteredTable != []:
+            print("/           " + tableToUse.tableName + "              /")
+            for line in tableToUse.collumnNames:
+                print(line + "   /", end = '')
+            print("")
+            for line in filteredTable:
+                print(line)
+        else:
+            pass
+
+        print("\n")
+
+        return
+
+    def mergeSortByCollumn(self, table, left: int, right: int, collumnNum: int):
+        def telettubies(table, left: int, middle: int, right: int, collumnNum: int):
+            i = left
+            leftAux = left
+            j = middle+1
+            tableAux = table
+            while (i <= middle and j <= right):
+                if (table[i][collumnNum] <= table[j][collumnNum]):
+                    tableAux[leftAux] = table[i]
+                    leftAux += 1
+                    i += 1
+                else: # (table[j][collumnNum] < table[i][collumnNum]):
+                    tableAux[leftAux] = table[j]
+                    leftAux += 1
+                    j += 1
+            while (i <= middle):
+                tableAux[leftAux] = table[i]
+                leftAux += 1
+                i += 1
+            while (j <= right):
+                tableAux[leftAux] = table[j]
+                leftAux += 1
+                j += 1
+
+            i = left
+            while i <= right:
+                table[i] = tableAux[i]
+                i += 1
+            
+            return table
+
+        half = 0
+        if (left < right):
+            half = (left+right)/2
+            table = self.mergeSortByCollumn(table, left, half, collumnNum)
+            table = self.mergeSortByCollumn(table, half+1, right, collumnNum)
+            table = telettubies(table, left, half, right, collumnNum)
+        
+        return table
+
+    def manageWhere(self, where, tableToUse):
         logicOperand        = []
         comparations        = []
         attributesToCompare = []
@@ -209,34 +289,88 @@ class Database:
             else:
                 attributesToCompare.append(word)
 
+        intSinalizer       = []
+        qntOfIntAttributes = 0
+        iterator = 0
+        while iterator < len(attributesToCompare):
+            try:
+                attributesToCompare[iterator] = int(attributesToCompare[iterator])
+                intSinalizer.append(1)
+                qntOfIntAttributes += 1
+            except:
+                intSinalizer.append(0)
+            
+            iterator += 1
+
         if (logicOperand != [] and len(attributesToCompare) < 4) or (len(attributesToCompare) < 2):
             print("Not enought arguments to compare. \n")
-            return
+            return []
+        if qntOfIntAttributes > 2: # Comparing an int to another in using a table (?)
+            print("There is an error in your sql sintax. \n")
+            return []
         
-        for table in self.tables:
-            if table.tableName == selectFrom[0]:
-                tableToUse = table
-
-        print("/           " + tableToUse.tableName + "              /")
-        for line in tableToUse.collumnNames:
-            print(line + "   /", end = '')
-        print("")
-
-        if logicOperand == []:
-            for row in tableToUse.tableContent:
-                if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], row[tableToUse.collumnNames[attributesToCompare[1]]])):
-                    print(row)
-        elif logicOperand[0] == "and":
-            for row in tableToUse.tableContent:
-                if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], row[tableToUse.collumnNames[attributesToCompare[1]]]) and self.operatorsDict[comparations[1]](row[tableToUse.collumnNames[attributesToCompare[2]]], row[tableToUse.collumnNames[attributesToCompare[3]]])):
-                    print(row)
-        elif logicOperand[0] == "or":
-            for row in tableToUse.tableContent:
-                if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], row[tableToUse.collumnNames[attributesToCompare[1]]]) or self.operatorsDict[comparations[1]](row[tableToUse.collumnNames[attributesToCompare[2]]], row[tableToUse.collumnNames[attributesToCompare[3]]])):
-                    print(row)
+        filteredTable = []
+        if qntOfIntAttributes == 2:
+            if intSinalizer[0] == 1 and intSinalizer[2] == 1:
+                if logicOperand[0] == "and":
+                    for row in tableToUse.tableContent:
+                        if (self.operatorsDict[comparations[0]](attributesToCompare[0], row[tableToUse.collumnNames[attributesToCompare[1]]]) and self.operatorsDict[comparations[1]](attributesToCompare[2], row[tableToUse.collumnNames[attributesToCompare[3]]])):
+                            filteredTable.append(row)
+                elif logicOperand[0] == "or":
+                    for row in tableToUse.tableContent:
+                        if (self.operatorsDict[comparations[0]](attributesToCompare[0], row[tableToUse.collumnNames[attributesToCompare[1]]]) or self.operatorsDict[comparations[1]](attributesToCompare[2], row[tableToUse.collumnNames[attributesToCompare[3]]])):
+                            filteredTable.append(row)
+            elif intSinalizer[1] == 1 and intSinalizer[3] == 1:
+                if logicOperand[0] == "and":
+                    for row in tableToUse.tableContent:
+                        if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], attributesToCompare[1]) and self.operatorsDict[comparations[1]](row[tableToUse.collumnNames[attributesToCompare[2]]], attributesToCompare[3])):
+                            filteredTable.append(row)
+                elif logicOperand[0] == "or":
+                    for row in tableToUse.tableContent:
+                        if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], attributesToCompare[1]) or self.operatorsDict[comparations[1]](row[tableToUse.collumnNames[attributesToCompare[2]]], attributesToCompare[3])):
+                            filteredTable.append(row)
+            elif intSinalizer[1] == 1 and intSinalizer[2] == 1:
+                if logicOperand[0] == "and":
+                    for row in tableToUse.tableContent:
+                        if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], attributesToCompare[1]) and self.operatorsDict[comparations[1]](attributesToCompare[2], row[tableToUse.collumnNames[attributesToCompare[3]]])):
+                            filteredTable.append(row)
+                elif logicOperand[0] == "or":
+                    for row in tableToUse.tableContent:
+                        if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], attributesToCompare[1]) or self.operatorsDict[comparations[1]](attributesToCompare[2], row[tableToUse.collumnNames[attributesToCompare[3]]])):
+                            filteredTable.append(row)
+            else: # intSinalizer[0] == 1 and intSinalizer[3] == 1
+                if logicOperand[0] == "and":
+                    for row in tableToUse.tableContent:
+                        if (self.operatorsDict[comparations[0]](attributesToCompare[0], row[tableToUse.collumnNames[attributesToCompare[1]]]) and self.operatorsDict[comparations[1]](row[tableToUse.collumnNames[attributesToCompare[2]]], attributesToCompare[3])):
+                            filteredTable.append(row)
+                elif logicOperand[0] == "or":
+                    for row in tableToUse.tableContent:
+                        if (self.operatorsDict[comparations[0]](attributesToCompare[0], row[tableToUse.collumnNames[attributesToCompare[1]]]) or self.operatorsDict[comparations[1]](row[tableToUse.collumnNames[attributesToCompare[2]]], attributesToCompare[3])):
+                            filteredTable.append(row)
+        elif qntOfIntAttributes == 1:
+            if logicOperand == []:
+                if intSinalizer[0] == 1:
+                    for row in tableToUse.tableContent:
+                        if self.operatorsDict[comparations[0]](attributesToCompare[0], row[tableToUse.collumnNames[attributesToCompare[1]]]):
+                            filteredTable.append(row)
+                else: # intSinalizer[1] == 1
+                    for row in tableToUse.tableContent:
+                        if self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], attributesToCompare[1]):
+                            filteredTable.append(row)
+        elif qntOfIntAttributes == 0:
+            if logicOperand == []:
+                for row in tableToUse.tableContent:
+                    if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], row[tableToUse.collumnNames[attributesToCompare[1]]])):
+                        filteredTable.append(row)
+            elif logicOperand[0] == "and":
+                for row in tableToUse.tableContent:
+                    if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], row[tableToUse.collumnNames[attributesToCompare[1]]]) and self.operatorsDict[comparations[1]](row[tableToUse.collumnNames[attributesToCompare[2]]], row[tableToUse.collumnNames[attributesToCompare[3]]])):
+                        filteredTable.append(row)
+            elif logicOperand[0] == "or":
+                for row in tableToUse.tableContent:
+                    if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], row[tableToUse.collumnNames[attributesToCompare[1]]]) or self.operatorsDict[comparations[1]](row[tableToUse.collumnNames[attributesToCompare[2]]], row[tableToUse.collumnNames[attributesToCompare[3]]])):
+                        filteredTable.append(row)
         else:
             print("Couldn't compare attributes.\n")
-        
-        print("\n")
 
-        return
+        return filteredTable
