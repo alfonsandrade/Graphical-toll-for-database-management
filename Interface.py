@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from Database import Database
-import os,glob
+import os
 
 
 gui = Tk()
@@ -39,8 +39,6 @@ def loadFile():
 
 
     print("Creating table files based on...")
-    for file in glob.glob("*.csv"):
-        print(file)
         
     dataBase = Database(folder1)
     dataBase.searchLoop()

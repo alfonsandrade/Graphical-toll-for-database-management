@@ -36,6 +36,8 @@ class Database:
         where        = []
         order_by     = []
 
+        print("\nYou may now write your queries:\n")
+
         # Mainloop for searching in database
         while query[0] != "quit;":
             print("> ", end = '')
@@ -170,6 +172,12 @@ class Database:
                         print("Error: there is no " + attribute + " in " + usedTable.tableName + "\n")
                         sintaxOk = False
 
+            if sintaxOk == True and order_by != []:
+                for attribute in order_by:
+                    if attribute not in usedTable.collumnNames:
+                        print("Error: there is no " + attribute + " in " + usedTable.tableName + "\n")
+                        sintaxOk = False
+
             if sintaxOk == True and order_by != [] and whatToSelect[0] != '*' and order_by[0] not in whatToSelect:
                 print("There is an error in your SQL sintax.\n")
                 sintaxOk = False
@@ -204,13 +212,16 @@ class Database:
 
         orderedTable = self.mergeSortByCollumn(tableToUse.tableContent, 0, len(tableToUse.tableContent)-1, tableToUse.collumnNames[order_by[0]])
 
-        print("/                " + tableToUse.tableName + "                /")
-        print("/", end = '')
-        for line in tableToUse.collumnNames:
-            print("  "+line + "  /", end = '')
-        print("")
-        for line in orderedTable:
-            print(line)
+        if orderedTable != []:
+            print("/                " + tableToUse.tableName + "                /")
+            print("/", end = '')
+            for line in tableToUse.collumnNames:
+                print("  "+line + "  /", end = '')
+            print("")
+            for line in orderedTable:
+                print(line)
+        else:
+            print("This relation is empty.")
 
         return 
 
@@ -231,7 +242,7 @@ class Database:
             for line in filteredTable:
                 print(line)
         else:
-            pass
+            print("This relation is empty.")
 
         print("\n")
 
@@ -254,7 +265,7 @@ class Database:
             for line in filteredTable:
                 print(line)
         else:
-            pass
+            print("This relation is empty.")
 
         print("\n")
 
