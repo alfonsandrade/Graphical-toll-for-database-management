@@ -1,7 +1,13 @@
+#   Graphical toll for  database  query execution
+#                   Made by:
+#       João Vitor Caverasan dos Passos
+#   Contact: joaopassos@alunos.utfpr.edu.br
+#   Alfons Carlos César Heiermann de Andrade
+#       Contact: alfons@alunos.utfpr.edu.br
+
 from inspect import Attribute
 import sys
 import os
-import re
 
 sys.setrecursionlimit(1000)
 
@@ -41,7 +47,7 @@ class Database:
         where        = []
         order_by     = []
 
-        print("\nYou may now write your queries:\n")
+        print("This DB tool uses spaces as a separator for all words and symbols. Don't forget the ; in the end \nYou may now write your queries:\n")
 
         # Mainloop for searching in database
         while query[0] != "quit;":
@@ -295,7 +301,9 @@ class Database:
         for line in tableToUse.tableContent:
             print('|',  end = '')
             for attribute in whatToSelect:
-                print("  " + line[tableToUse.collumnNames[attribute]] + "  |", end = '')
+                print("  ", end = "")
+                print(line[tableToUse.collumnNames[attribute]], end = "")
+                print("  |", end = '')
             print('')
         
         print("\n")
@@ -318,7 +326,9 @@ class Database:
         for line in orderedTable:
             print('|',  end = '')
             for attribute in whatToSelect:
-                print("  " + line[tableToUse.collumnNames[attribute]] + "  |", end = '')
+                print("  ", end = "")
+                print(line[tableToUse.collumnNames[attribute]], end = "")
+                print("  |", end = '')
             print('')
         
         print("\n")
@@ -339,7 +349,9 @@ class Database:
         for line in filteredTable:
             print('|',  end = '')
             for attribute in whatToSelect:
-                print("  " + line[tableToUse.collumnNames[attribute]] + "  |", end = '')
+                print("  ", end = "")
+                print(line[tableToUse.collumnNames[attribute]], end = "")
+                print("  |", end = '')
             print('')
         
         print("\n")
@@ -361,7 +373,9 @@ class Database:
         for line in filteredTable:
             print('|',  end = '')
             for attribute in whatToSelect:
-                print("  " + line[tableToUse.collumnNames[attribute]] + "  |", end = '')
+                print("  ", end = "")
+                print(line[tableToUse.collumnNames[attribute]], end = "")
+                print("  |", end = '')
             print('')
         
         print("\n")
@@ -433,6 +447,11 @@ class Database:
                 valueSinalizer.append(0)
             else:
                 valueSinalizer.append(1)
+                try:
+                    attributesToCompare[iterator] = int(attributesToCompare[iterator])
+                except:
+                    pass
+
                 qntOfValueAttributes += 1
             
             iterator += 1

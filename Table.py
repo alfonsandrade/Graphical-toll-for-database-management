@@ -1,7 +1,9 @@
-
-import os
-import re
-
+#   Graphical toll for  database  query execution
+#                   Made by:
+#       João Vitor Caverasan dos Passos
+#   Contact: joaopassos@alunos.utfpr.edu.br
+#   Alfons Carlos César Heiermann de Andrade
+#       Contact: alfons@alunos.utfpr.edu.br
 class Table:
     def __init__(self, fileName: str, filePath: str):
         fileContent = open(filePath, 'r')
@@ -32,8 +34,7 @@ class Table:
         print(self.collumnNames)
         self.tableContent = dataInFile[1:]
 
-        # Was actually making more trouble
-        # self.attributesCasting()
+        self.attributesCasting()
 
         fileContent.close()
 
