@@ -1,3 +1,4 @@
+from inspect import Attribute
 import sys
 import os
 import re
@@ -28,6 +29,8 @@ class Database:
         self.operatorsDict[">"]  = lambda a, b: a > b
         self.operatorsDict[">="] = lambda a, b: a >= b
         self.operatorsDict["<="] = lambda a, b: a <= b
+        self.operatorsDict["&"]  = lambda a, b: a & b
+        self.operatorsDict["|"]  = lambda a, b: a | b
 
     def searchLoop(self):
         query = "nop"
@@ -77,15 +80,15 @@ class Database:
                 else:
                     # Select * from chosen where paosdvaso order by oasivaosi
                     self.selectAllFromWhereOrderBy(selectFrom, where, order_by)
-            # else:
-            #     if where == [] and order_by == []:
-            #         # Select * from chosen
-            #     elif where == []:
-            #         # Select * from chosen order by chum
-            #     elif order_by == []:
-            #         # Select * from chosen where apoaisnvaosid
-            #     else:
-            #         # Select * from chosen where paosdvaso order by oasivaosi
+            else:
+                if where == [] and order_by == []:
+                    self.selectSomethingFrom(whatToSelect, selectFrom)
+                elif where == []:
+                    self.selectSomethingFromOrderBy(whatToSelect, selectFrom, order_by)
+                elif order_by == []:
+                    self.selectSomethingFromWhere(whatToSelect, selectFrom, where)
+                else:
+                    self.selectSomethingFromWhereOrderBy(whatToSelect, selectFrom, where, order_by)
 
         print("Bye")
 
@@ -165,19 +168,21 @@ class Database:
                 print("Error: no table called " + selectFrom[0] + " was found.\n")
 
 
-            # Checks rathen attrbutes do exist in the table
+            # Checks rathen attributes do exist in the table
             if sintaxOk == True and whatToSelect[0] != '*':
                 for attribute in whatToSelect:
                     if attribute not in usedTable.collumnNames:
                         print("Error: there is no " + attribute + " in " + usedTable.tableName + "\n")
                         sintaxOk = False
 
+            # Checks rathen order_by attributes do exist in the table
             if sintaxOk == True and order_by != []:
                 for attribute in order_by:
                     if attribute not in usedTable.collumnNames:
                         print("Error: there is no " + attribute + " in " + usedTable.tableName + "\n")
                         sintaxOk = False
 
+            # Checks if order by attributes are in what to select
             if sintaxOk == True and order_by != [] and whatToSelect[0] != '*' and order_by[0] not in whatToSelect:
                 print("There is an error in your SQL sintax.\n")
                 sintaxOk = False
@@ -192,10 +197,10 @@ class Database:
             if table.tableName == selectFrom[0]:
                 tableToUse = table
 
-        print("/                " + tableToUse.tableName + "                /")
-        print("/", end = '')
+        print("|                " + tableToUse.tableName + "                |")
+        print("|", end = '')
         for line in tableToUse.collumnNames:
-            print("  "+line + "  /", end = '')
+            print("  "+line + "  |", end = '')
         print("")
         for line in tableToUse.tableContent:
             print(line)
@@ -213,10 +218,10 @@ class Database:
         orderedTable = self.mergeSortByCollumn(tableToUse.tableContent, 0, len(tableToUse.tableContent)-1, tableToUse.collumnNames[order_by[0]])
 
         if orderedTable != []:
-            print("/                " + tableToUse.tableName + "                /")
-            print("/", end = '')
+            print("|                " + tableToUse.tableName + "                |")
+            print("|", end = '')
             for line in tableToUse.collumnNames:
-                print("  "+line + "  /", end = '')
+                print("  "+line + "  |", end = '')
             print("")
             for line in orderedTable:
                 print(line)
@@ -234,10 +239,10 @@ class Database:
         filteredTable = self.manageWhere(where, tableToUse)
 
         if filteredTable != []:
-            print("/                " + tableToUse.tableName + "                /")
-            print("/", end = '')
+            print("|                " + tableToUse.tableName + "                |")
+            print("|", end = '')
             for line in tableToUse.collumnNames:
-                print("  "+line + "  /", end = '')
+                print("  "+line + "  |", end = '')
             print("")
             for line in filteredTable:
                 print(line)
@@ -257,10 +262,10 @@ class Database:
         filteredTable = self.mergeSortByCollumn(filteredTable, 0, len(filteredTable)-1, tableToUse.collumnNames[order_by[0]])
 
         if filteredTable != []:
-            print("/                " + tableToUse.tableName + "                /")
-            print("/", end = '')
+            print("|                " + tableToUse.tableName + "                |")
+            print("|", end = '')
             for line in tableToUse.collumnNames:
-                print("  "+line + "  /", end = '')
+                print("  "+line + "  |", end = '')
             print("")
             for line in filteredTable:
                 print(line)
@@ -270,7 +275,93 @@ class Database:
         print("\n")
 
         return
+    
+    ########################## QUERY ALGORITHMS WITHOUT * ##########################
 
+    def selectSomethingFrom(self, whatToSelect, selectFrom):
+        for table in self.tables:
+            if table.tableName == selectFrom[0]:
+                tableToUse = table
+
+        print("|                " + tableToUse.tableName + "                |")
+        print("|", end = '')
+        
+        for attribute in whatToSelect:
+            print("  " + attribute + "  |", end = '')
+        print("")
+        
+        for line in tableToUse.tableContent:
+            print('|',  end = '')
+            for attribute in whatToSelect:
+                print("  " + line[tableToUse.collumnNames[attribute]] + "  |", end = '')
+            print('')
+        
+        print("\n")
+        return
+    
+    def selectSomethingFromOrderBy(self, whatToSelect, selectFrom, order_by):
+        for table in self.tables:
+            if table.tableName == selectFrom[0]:
+                tableToUse = table
+        
+        orderedTable = self.mergeSortByCollumn(tableToUse.tableContent, 0, len(tableToUse.tableContent)-1, tableToUse.collumnNames[order_by[0]])
+
+        print("|                " + tableToUse.tableName + "                |")
+        print("|", end = '')
+
+        for attribute in whatToSelect:
+            print("  "+ attribute + "  |", end = '')
+        print("")
+        
+        for line in orderedTable:
+            for attribute in whatToSelect:
+                print(line[tableToUse.collumnNames[attribute]])
+        
+        print("\n")
+    
+        return
+    
+    def selectSomethingFromWhere(self, whatToSelect, selectFrom, where):
+        for table in self.tables:
+            if table.tableName == selectFrom[0]:
+                tableToUse = table
+        
+        filteredTable = self.manageWhere(where, tableToUse)
+
+        for attribute in whatToSelect:
+            print("  "+ attribute + "  |", end = '')
+        print("")
+        
+        for line in filteredTable:
+            for attribute in whatToSelect:
+                print(line[tableToUse.collumnNames[attribute]])
+        
+        print("\n")
+
+        return
+    
+    def selectSomethingFromWhereOrderBy(self, whatToSelect, selectFrom, where, order_by):
+        for table in self.tables:
+            if table.tableName == selectFrom[0]:
+                tableToUse = table
+        
+        filteredTable = self.manageWhere(where, tableToUse)
+        filteredTable = self.mergeSortByCollumn(filteredTable, 0, len(filteredTable)-1, tableToUse.collumnNames[order_by[0]])
+
+        for attribute in whatToSelect:
+            print("  "+ attribute + "  |", end = '')
+        print("")
+        
+        for line in filteredTable:
+            for attribute in whatToSelect:
+                print(line[tableToUse.collumnNames[attribute]])
+        
+        print("\n")
+
+        return
+    
+
+    
     def mergeSortByCollumn(self, table, left: int, right: int, collumnNum: int):
         def telettubies(table, left: int, middle: int, right: int, collumnNum: int):
             i = left
@@ -316,11 +407,10 @@ class Database:
         comparations        = []
         attributesToCompare = []
         andOr       = ["and", "or"]
-        comparators = ["=", "!=", "<", ">", "<=", ">="]
 
         # Parses the where array
         for word in where:
-            if word in comparators:
+            if word in self.operatorsDict:
                 comparations.append(word)
             elif word.lower() in andOr:
                 logicOperand.append(word.lower())

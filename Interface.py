@@ -37,7 +37,6 @@ def loadFile():
     os.chdir(folder1)
     print(folder1)
 
-
     print("Creating table files based on...")
         
     dataBase = Database(folder1)
@@ -49,9 +48,5 @@ directorySelect.grid(row=0)
 
 load = ttk.Button(gui, text="Load", command=loadFile)
 load.grid(row=4,column=0)
-
-quitter = ttk.Button(gui, text = "Quit",command = gui.quit)
-quitter.grid(row=5,column=0)
-
 
 gui.mainloop()
