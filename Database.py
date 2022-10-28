@@ -23,14 +23,16 @@ class Database:
 
         # Creates dictionary to store comparation functions for each operand
         self.operatorsDict = {}
-        self.operatorsDict["="]  = lambda a, b: a == b
-        self.operatorsDict["!="] = lambda a, b: a != b
-        self.operatorsDict["<"]  = lambda a, b: a < b
-        self.operatorsDict[">"]  = lambda a, b: a > b
-        self.operatorsDict[">="] = lambda a, b: a >= b
-        self.operatorsDict["<="] = lambda a, b: a <= b
-        self.operatorsDict["&"]  = lambda a, b: a & b
-        self.operatorsDict["|"]  = lambda a, b: a | b
+        self.operatorsDict["="]   = lambda a, b: a == b
+        self.operatorsDict["!="]  = lambda a, b: a != b
+        self.operatorsDict["<"]   = lambda a, b: a < b
+        self.operatorsDict[">"]   = lambda a, b: a > b
+        self.operatorsDict[">="]  = lambda a, b: a >= b
+        self.operatorsDict["<="]  = lambda a, b: a <= b
+        self.operatorsDict["&"]   = lambda a, b: a & b
+        self.operatorsDict["|"]   = lambda a, b: a | b
+        self.operatorsDict["and"] = lambda a, b: a and b
+        self.operatorsDict["or"]  = lambda a, b: a or b
 
     def searchLoop(self):
         query = "nop"
@@ -314,8 +316,10 @@ class Database:
         print("")
         
         for line in orderedTable:
+            print('|',  end = '')
             for attribute in whatToSelect:
-                print(line[tableToUse.collumnNames[attribute]])
+                print("  " + line[tableToUse.collumnNames[attribute]] + "  |", end = '')
+            print('')
         
         print("\n")
     
@@ -333,8 +337,10 @@ class Database:
         print("")
         
         for line in filteredTable:
+            print('|',  end = '')
             for attribute in whatToSelect:
-                print(line[tableToUse.collumnNames[attribute]])
+                print("  " + line[tableToUse.collumnNames[attribute]] + "  |", end = '')
+            print('')
         
         print("\n")
 
@@ -353,8 +359,10 @@ class Database:
         print("")
         
         for line in filteredTable:
+            print('|',  end = '')
             for attribute in whatToSelect:
-                print(line[tableToUse.collumnNames[attribute]])
+                print("  " + line[tableToUse.collumnNames[attribute]] + "  |", end = '')
+            print('')
         
         print("\n")
 
@@ -417,29 +425,28 @@ class Database:
             else:
                 attributesToCompare.append(word)
 
-        intSinalizer       = []
-        qntOfIntAttributes = 0
+        valueSinalizer       = []
+        qntOfValueAttributes = 0
         iterator = 0
         while iterator < len(attributesToCompare):
-            try:
-                attributesToCompare[iterator] = int(attributesToCompare[iterator])
-                intSinalizer.append(1)
-                qntOfIntAttributes += 1
-            except:
-                intSinalizer.append(0)
+            if (attributesToCompare[iterator] in tableToUse.collumnNames):
+                valueSinalizer.append(0)
+            else:
+                valueSinalizer.append(1)
+                qntOfValueAttributes += 1
             
             iterator += 1
 
         if (logicOperand != [] and len(attributesToCompare) < 4) or (len(attributesToCompare) < 2):
             print("Not enought arguments to compare. \n")
             return []
-        if qntOfIntAttributes > 2: # Comparing an int to another in using a table (?)
+        if qntOfValueAttributes > 2: # Comparing an int to another in using a table (?)
             print("There is an error in your sql sintax. \n")
             return []
         
         filteredTable = []
-        if qntOfIntAttributes == 2:
-            if intSinalizer[0] == 1 and intSinalizer[2] == 1:
+        if qntOfValueAttributes == 2:
+            if valueSinalizer[0] == 1 and valueSinalizer[2] == 1:
                 if logicOperand[0] == "and":
                     for row in tableToUse.tableContent:
                         if (self.operatorsDict[comparations[0]](attributesToCompare[0], row[tableToUse.collumnNames[attributesToCompare[1]]]) and self.operatorsDict[comparations[1]](attributesToCompare[2], row[tableToUse.collumnNames[attributesToCompare[3]]])):
@@ -448,7 +455,7 @@ class Database:
                     for row in tableToUse.tableContent:
                         if (self.operatorsDict[comparations[0]](attributesToCompare[0], row[tableToUse.collumnNames[attributesToCompare[1]]]) or self.operatorsDict[comparations[1]](attributesToCompare[2], row[tableToUse.collumnNames[attributesToCompare[3]]])):
                             filteredTable.append(row)
-            elif intSinalizer[1] == 1 and intSinalizer[3] == 1:
+            elif valueSinalizer[1] == 1 and valueSinalizer[3] == 1:
                 if logicOperand[0] == "and":
                     for row in tableToUse.tableContent:
                         if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], attributesToCompare[1]) and self.operatorsDict[comparations[1]](row[tableToUse.collumnNames[attributesToCompare[2]]], attributesToCompare[3])):
@@ -457,7 +464,7 @@ class Database:
                     for row in tableToUse.tableContent:
                         if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], attributesToCompare[1]) or self.operatorsDict[comparations[1]](row[tableToUse.collumnNames[attributesToCompare[2]]], attributesToCompare[3])):
                             filteredTable.append(row)
-            elif intSinalizer[1] == 1 and intSinalizer[2] == 1:
+            elif valueSinalizer[1] == 1 and valueSinalizer[2] == 1:
                 if logicOperand[0] == "and":
                     for row in tableToUse.tableContent:
                         if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], attributesToCompare[1]) and self.operatorsDict[comparations[1]](attributesToCompare[2], row[tableToUse.collumnNames[attributesToCompare[3]]])):
@@ -466,7 +473,7 @@ class Database:
                     for row in tableToUse.tableContent:
                         if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], attributesToCompare[1]) or self.operatorsDict[comparations[1]](attributesToCompare[2], row[tableToUse.collumnNames[attributesToCompare[3]]])):
                             filteredTable.append(row)
-            else: # intSinalizer[0] == 1 and intSinalizer[3] == 1
+            else: # valueSinalizer[0] == 1 and valueSinalizer[3] == 1
                 if logicOperand[0] == "and":
                     for row in tableToUse.tableContent:
                         if (self.operatorsDict[comparations[0]](attributesToCompare[0], row[tableToUse.collumnNames[attributesToCompare[1]]]) and self.operatorsDict[comparations[1]](row[tableToUse.collumnNames[attributesToCompare[2]]], attributesToCompare[3])):
@@ -475,17 +482,17 @@ class Database:
                     for row in tableToUse.tableContent:
                         if (self.operatorsDict[comparations[0]](attributesToCompare[0], row[tableToUse.collumnNames[attributesToCompare[1]]]) or self.operatorsDict[comparations[1]](row[tableToUse.collumnNames[attributesToCompare[2]]], attributesToCompare[3])):
                             filteredTable.append(row)
-        elif qntOfIntAttributes == 1:
+        elif qntOfValueAttributes == 1:
             if logicOperand == []:
-                if intSinalizer[0] == 1:
+                if valueSinalizer[0] == 1:
                     for row in tableToUse.tableContent:
                         if self.operatorsDict[comparations[0]](attributesToCompare[0], row[tableToUse.collumnNames[attributesToCompare[1]]]):
                             filteredTable.append(row)
-                else: # intSinalizer[1] == 1
+                else: # valueSinalizer[1] == 1
                     for row in tableToUse.tableContent:
                         if self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], attributesToCompare[1]):
                             filteredTable.append(row)
-        elif qntOfIntAttributes == 0:
+        elif qntOfValueAttributes == 0:
             if logicOperand == []:
                 for row in tableToUse.tableContent:
                     if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], row[tableToUse.collumnNames[attributesToCompare[1]]])):

@@ -32,7 +32,8 @@ class Table:
         print(self.collumnNames)
         self.tableContent = dataInFile[1:]
 
-        self.attributesCasting()
+        # Was actually making more trouble
+        # self.attributesCasting()
 
         fileContent.close()
 
