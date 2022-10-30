@@ -1,6 +1,6 @@
 #   Graphical toll for  database  query execution
 #                   Made by:
-#       João Vitor Caverasan dos Passos
+#       João Vitor Caversan dos Passos
 #   Contact: joaopassos@alunos.utfpr.edu.br
 #   Alfons Carlos César Heiermann de Andrade
 #       Contact: alfons@alunos.utfpr.edu.br
@@ -37,8 +37,6 @@ class Database:
         self.operatorsDict["<="]  = lambda a, b: a <= b
         self.operatorsDict["&"]   = lambda a, b: a & b
         self.operatorsDict["|"]   = lambda a, b: a | b
-        self.operatorsDict["and"] = lambda a, b: a and b
-        self.operatorsDict["or"]  = lambda a, b: a or b
 
     def searchLoop(self):
         query = "nop"

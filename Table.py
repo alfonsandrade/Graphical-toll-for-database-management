@@ -1,6 +1,6 @@
 #   Graphical toll for  database  query execution
 #                   Made by:
-#       João Vitor Caverasan dos Passos
+#       João Vitor Caversan dos Passos
 #   Contact: joaopassos@alunos.utfpr.edu.br
 #   Alfons Carlos César Heiermann de Andrade
 #       Contact: alfons@alunos.utfpr.edu.br
