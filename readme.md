@@ -18,4 +18,10 @@ All .csv files will be loaded into memory as tables, and you can start to write 
 
 The sintax is simpler than the MySQL one. It's separator is a **blank space**.
 
-To write correctly simply **put a blank space btween all words and sybols** and then **put a ; in the end**. Any other syntax will cause problemns. Press ENTER to run.
+To write correctly simply **put a blank space btween all words and sybols** and then **put a ; in the end**. Any other syntax will cause problems. Press ENTER to run.
+
+**Query example**
+
+```terminal
+select id birth_date first_name from employees where first_name = John and id > 50397 order by birth_date;
+```
