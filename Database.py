@@ -5,7 +5,6 @@
 #   Alfons Carlos César Heiermann de Andrade
 #       Contact: alfons@alunos.utfpr.edu.br
 
-from inspect import Attribute
 import sys
 import os
 
