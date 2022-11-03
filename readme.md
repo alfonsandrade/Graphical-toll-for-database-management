@@ -6,7 +6,7 @@ This tool for DB management simulates a MySQL-like structure, with tables beeing
 
 For graphical interface library installation run:
 
-Packege Manager:
+Package Manager:
 ```terminal
 sudo apt install python3-tk
 ```
