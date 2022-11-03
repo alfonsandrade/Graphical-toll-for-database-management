@@ -68,5 +68,3 @@ class Table:
                 pass
 
             iterator += 1
-
-        return

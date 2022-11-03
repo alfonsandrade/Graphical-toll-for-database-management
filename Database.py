@@ -97,8 +97,6 @@ class Database:
 
         print("Bye")
 
-        return
-
 
     def verifyPointCommaInTheEnd(self, query) -> bool:
         if ';' in query[len(query) - 1]:
@@ -212,8 +210,6 @@ class Database:
 
         print("\n")
 
-        return
-
     # select * from something order by something
     def selectAllFromOrderBy(self, selectFrom, order_by):
         for table in self.tables:
@@ -232,8 +228,6 @@ class Database:
                 print(line)
         else:
             print("This relation is empty.")
-
-        return 
 
     # select * from something where something < 78
     def selectAllFromWhere(self, selectFrom, where):        
@@ -256,8 +250,6 @@ class Database:
 
         print("\n")
 
-        return
-
     def selectAllFromWhereOrderBy(self, selectFrom, where, order_by):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
@@ -278,8 +270,6 @@ class Database:
             print("This relation is empty.")
 
         print("\n")
-
-        return
 
     ########################## QUERY ALGORITHMS WITHOUT * ##########################
 
@@ -304,7 +294,6 @@ class Database:
             print('')
 
         print("\n")
-        return
 
     def selectSomethingFromOrderBy(self, whatToSelect, selectFrom, order_by):
         for table in self.tables:
@@ -330,8 +319,6 @@ class Database:
 
         print("\n")
 
-        return
-
     def selectSomethingFromWhere(self, whatToSelect, selectFrom, where):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
@@ -352,8 +339,6 @@ class Database:
             print('')
 
         print("\n")
-
-        return
 
     def selectSomethingFromWhereOrderBy(self, whatToSelect, selectFrom, where, order_by):
         for table in self.tables:
@@ -376,8 +361,6 @@ class Database:
             print('')
 
         print("\n")
-
-        return
 
 
 
