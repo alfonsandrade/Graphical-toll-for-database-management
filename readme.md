@@ -9,11 +9,13 @@ For graphical interface library installation run:
 Packege Manager:
 ```terminal
 sudo apt install python3-tk
-´´´
+```
+
 Pip command:
 ```terminal
 pip install tk
-´´´
+```
+
 ## How to use it
 
 Simply run:
