@@ -37,5 +37,5 @@ To write correctly simply **put a blank space between all words and sybols** and
 **Query example**
 
 ```terminal
-select id birth_date first_name from employees where first_name = John and id > 50397 order by birth_date;
+select id birth_date first_name from employees where first_name = John and id > 50397 order by birth_date ;
 ```
