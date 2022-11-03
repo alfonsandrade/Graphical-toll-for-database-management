@@ -99,7 +99,7 @@ class Database:
 
 
     def verifyPointCommaInTheEnd(self, query) -> bool:
-        if ';' in query[len(query) - 1]:
+        if ';' in query[-1]:
             return True
         else:
             print("There is an error in your SQL sintax. Expected ';'.")
@@ -114,8 +114,8 @@ class Database:
         order_by     = []
 
         # Removes ; from the last word or removes it completely if it's only a ;
-        if len(query[len(query) - 1]) > 1:
-            query[len(query) - 1] = query[len(query) - 1][:-1]
+        if len(query[-1]) > 1:
+            query[-1] = query[-1][-1]
         else:
             query = query[:-1]
 
