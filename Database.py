@@ -158,7 +158,7 @@ class Database:
 
     def isQuerySintaxOk(self, whatToSelect, selectFrom, where, order_by):
         sintaxOk = False
-        
+
         # Finds table to be used
         if whatToSelect == []:
             print("There is nothing to select.\n")
@@ -281,7 +281,7 @@ class Database:
         print("\n")
 
         return
-    
+
     ########################## QUERY ALGORITHMS WITHOUT * ##########################
 
     def selectSomethingFrom(self, whatToSelect, selectFrom):
@@ -291,11 +291,11 @@ class Database:
 
         print("|                " + tableToUse.tableName + "                |")
         print("|", end = '')
-        
+
         for attribute in whatToSelect:
             print("  " + attribute + "  |", end = '')
         print("")
-        
+
         for line in tableToUse.tableContent:
             print('|',  end = '')
             for attribute in whatToSelect:
@@ -303,15 +303,15 @@ class Database:
                 print(line[tableToUse.collumnNames[attribute]], end = "")
                 print("  |", end = '')
             print('')
-        
+
         print("\n")
         return
-    
+
     def selectSomethingFromOrderBy(self, whatToSelect, selectFrom, order_by):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
                 tableToUse = table
-        
+
         orderedTable = self.mergeSortByCollumn(tableToUse.tableContent, 0, len(tableToUse.tableContent)-1, tableToUse.collumnNames[order_by[0]])
 
         print("|                " + tableToUse.tableName + "                |")
@@ -320,7 +320,7 @@ class Database:
         for attribute in whatToSelect:
             print("  "+ attribute + "  |", end = '')
         print("")
-        
+
         for line in orderedTable:
             print('|',  end = '')
             for attribute in whatToSelect:
@@ -328,22 +328,22 @@ class Database:
                 print(line[tableToUse.collumnNames[attribute]], end = "")
                 print("  |", end = '')
             print('')
-        
+
         print("\n")
-    
+
         return
-    
+
     def selectSomethingFromWhere(self, whatToSelect, selectFrom, where):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
                 tableToUse = table
-        
+
         filteredTable = self.manageWhere(where, tableToUse)
 
         for attribute in whatToSelect:
             print("  "+ attribute + "  |", end = '')
         print("")
-        
+
         for line in filteredTable:
             print('|',  end = '')
             for attribute in whatToSelect:
@@ -351,23 +351,23 @@ class Database:
                 print(line[tableToUse.collumnNames[attribute]], end = "")
                 print("  |", end = '')
             print('')
-        
+
         print("\n")
 
         return
-    
+
     def selectSomethingFromWhereOrderBy(self, whatToSelect, selectFrom, where, order_by):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
                 tableToUse = table
-        
+
         filteredTable = self.manageWhere(where, tableToUse)
         filteredTable = self.mergeSortByCollumn(filteredTable, 0, len(filteredTable)-1, tableToUse.collumnNames[order_by[0]])
 
         for attribute in whatToSelect:
             print("  "+ attribute + "  |", end = '')
         print("")
-        
+
         for line in filteredTable:
             print('|',  end = '')
             for attribute in whatToSelect:
@@ -375,13 +375,13 @@ class Database:
                 print(line[tableToUse.collumnNames[attribute]], end = "")
                 print("  |", end = '')
             print('')
-        
+
         print("\n")
 
         return
-    
 
-    
+
+
     def mergeSortByCollumn(self, table, left: int, right: int, collumnNum: int):
         def telettubies(table, left: int, middle: int, right: int, collumnNum: int):
             i = left
@@ -410,7 +410,7 @@ class Database:
             while i <= right:
                 table[i] = tableAux[i]
                 i += 1
-            
+
             return table
 
         half = 0
@@ -419,7 +419,7 @@ class Database:
             table = self.mergeSortByCollumn(table, left, half, collumnNum)
             table = self.mergeSortByCollumn(table, half+1, right, collumnNum)
             table = telettubies(table, left, half, right, collumnNum)
-        
+
         return table
 
     def manageWhere(self, where, tableToUse):
@@ -451,7 +451,7 @@ class Database:
                     pass
 
                 qntOfValueAttributes += 1
-            
+
             iterator += 1
 
         if (logicOperand != [] and len(attributesToCompare) < 4) or (len(attributesToCompare) < 2):
@@ -460,7 +460,7 @@ class Database:
         if qntOfValueAttributes > 2: # Comparing an int to another in using a table (?)
             print("There is an error in your sql sintax. \n")
             return []
-        
+
         filteredTable = []
         if qntOfValueAttributes == 2:
             if valueSinalizer[0] == 1 and valueSinalizer[2] == 1:

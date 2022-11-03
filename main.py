@@ -18,7 +18,7 @@ gui.title("Folder selection")
 icon = PhotoImage(file = 'icon.png')
 gui.iconphoto(False, icon)
 class FolderSelect(Frame):
-    
+
     def __init__(self,parent=None,folderDescription="",**kw):
         Frame.__init__(self,master=parent,**kw)
         self.folderPath = StringVar()
@@ -34,7 +34,7 @@ class FolderSelect(Frame):
     def setFolderPath(self):
         folder_selected = filedialog.askdirectory()
         self.folderPath.set(folder_selected)
-    
+
     @property
     def folder_path(self):
         return self.folderPath.get()
@@ -45,7 +45,7 @@ def loadFile():
     print(folder1)
 
     print("Creating table files based on...")
-    
+
     dataBase = Database(folder1)
     dataBase.searchLoop()
     gui.quit()
