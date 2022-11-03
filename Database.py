@@ -59,7 +59,7 @@ class Database:
             print(query)
 
             isQueryOk = self.verifyPointCommaInTheEnd(query)
-            if isQueryOk == False:
+            if isQueryOk is False:
                 continue
 
             result = self.queryTreatment(query)
@@ -70,7 +70,7 @@ class Database:
             order_by     = result[3]
 
             isQueryOk = self.isQuerySintaxOk(whatToSelect, selectFrom, where, order_by)
-            if isQueryOk == False:
+            if isQueryOk is False:
                 continue
 
             if whatToSelect[0] == "*":
@@ -170,26 +170,26 @@ class Database:
                     usedTable = table
                     sintaxOk  = True
             # Relations table was not found
-            if sintaxOk == False:
+            if sintaxOk is False:
                 print("Error: no table called " + selectFrom[0] + " was found.\n")
 
 
             # Checks rathen attributes do exist in the table
-            if sintaxOk == True and whatToSelect[0] != '*':
+            if sintaxOk is True and whatToSelect[0] != '*':
                 for attribute in whatToSelect:
                     if attribute not in usedTable.collumnNames:
                         print("Error: there is no " + attribute + " in " + usedTable.tableName + "\n")
                         sintaxOk = False
 
             # Checks rathen order_by attributes do exist in the table
-            if sintaxOk == True and order_by != []:
+            if sintaxOk is True and order_by != []:
                 for attribute in order_by:
                     if attribute not in usedTable.collumnNames:
                         print("Error: there is no " + attribute + " in " + usedTable.tableName + "\n")
                         sintaxOk = False
 
             # Checks if order by attributes are in what to select
-            if sintaxOk == True and order_by != [] and whatToSelect[0] != '*' and order_by[0] not in whatToSelect:
+            if sintaxOk is True and order_by != [] and whatToSelect[0] != '*' and order_by[0] not in whatToSelect:
                 print("There is an error in your SQL sintax.\n")
                 sintaxOk = False
 
