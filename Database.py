@@ -370,7 +370,7 @@ class Database:
             j = middle+1
             tableAux = [0] * len(table)
             while (i <= middle and j <= right):
-                if (table[i][collumnNum] <= table[j][collumnNum]):
+                if table[i][collumnNum] <= table[j][collumnNum]:
                     tableAux[leftAux] = table[i]
                     leftAux += 1
                     i += 1
@@ -378,11 +378,11 @@ class Database:
                     tableAux[leftAux] = table[j]
                     leftAux += 1
                     j += 1
-            while (i <= middle):
+            while i <= middle:
                 tableAux[leftAux] = table[i]
                 leftAux += 1
                 i += 1
-            while (j <= right):
+            while j <= right:
                 tableAux[leftAux] = table[j]
                 leftAux += 1
                 j += 1
@@ -395,7 +395,7 @@ class Database:
             return table
 
         half = 0
-        if (left < right):
+        if left < right:
             half = (left+right)//2
             table = self.mergeSortByCollumn(table, left, half, collumnNum)
             table = self.mergeSortByCollumn(table, half+1, right, collumnNum)
@@ -422,7 +422,7 @@ class Database:
         qntOfValueAttributes = 0
         iterator = 0
         while iterator < len(attributesToCompare):
-            if (attributesToCompare[iterator] in tableToUse.collumnNames):
+            if attributesToCompare[iterator] in tableToUse.collumnNames:
                 valueSinalizer.append(0)
             else:
                 valueSinalizer.append(1)
@@ -493,7 +493,7 @@ class Database:
         elif qntOfValueAttributes == 0:
             if logicOperand == []:
                 for row in tableToUse.tableContent:
-                    if (self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], row[tableToUse.collumnNames[attributesToCompare[1]]])):
+                    if self.operatorsDict[comparations[0]](row[tableToUse.collumnNames[attributesToCompare[0]]], row[tableToUse.collumnNames[attributesToCompare[1]]]):
                         filteredTable.append(row)
             elif logicOperand[0] == "and":
                 for row in tableToUse.tableContent:
