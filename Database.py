@@ -101,7 +101,8 @@ class Database:
         return
 
 
-    def verifyPointCommaInTheEnd(self, query) -> bool:
+    @staticmethod
+    def verifyPointCommaInTheEnd(query) -> bool:
         if ';' in query[len(query) - 1]:
             return True
         else:
@@ -110,7 +111,8 @@ class Database:
 
 
     # Devides the query into four arrays, the ones declared down below
-    def queryTreatment(self, query):
+    @staticmethod
+    def queryTreatment(query):
         whatToSelect = []
         selectFrom   = []
         where        = []
