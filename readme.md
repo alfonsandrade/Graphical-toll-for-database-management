@@ -2,6 +2,18 @@
 
 This tool for DB management simulates a MySQL-like structure, with tables beeing loaded into RAM for queries to be processed.
 
+## Setup
+
+For graphical interface library installation run:
+
+Packege Manager:
+```terminal
+sudo apt install python3-tk
+´´´
+Pip command:
+```terminal
+pip install tk
+´´´
 ## How to use it
 
 Simply run:
