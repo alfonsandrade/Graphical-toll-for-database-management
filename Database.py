@@ -101,9 +101,8 @@ class Database:
     def verifyPointCommaInTheEnd(self, query) -> bool:
         if ';' in query[-1]:
             return True
-        else:
-            print("There is an error in your SQL sintax. Expected ';'.")
-            return False
+        print("There is an error in your SQL sintax. Expected ';'.")
+        return False
 
 
     # Devides the query into four arrays, the ones declared down below
