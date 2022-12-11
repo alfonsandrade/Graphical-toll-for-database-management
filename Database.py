@@ -43,8 +43,10 @@ class Database:
         selectFrom   = []
         where        = []
         order_by     = []
+        tablesToJoin = []
+        joinEquality = []
 
-        print("This DB tool uses spaces as a separator for all words and symbols. Don't forget the ; in the end \nYou may now write your queries:\n")
+        print("\nThis DB tool uses spaces as a separator for all words and symbols. Don't forget the ; in the end \nYou may now write your queries:\n")
 
         # Mainloop for searching in database
         while query[0] != "quit;":
@@ -67,6 +69,15 @@ class Database:
             selectFrom   = result[1]
             where        = result[2]
             order_by     = result[3]
+            tablesToJoin = result[4]
+            joinEquality = result[5]
+
+            print(whatToSelect)
+            print(selectFrom  )
+            print(where       )
+            print(order_by    )
+            print(tablesToJoin)
+            print(joinEquality)
 
             isQueryOk = self.isQuerySintaxOk(whatToSelect, selectFrom, where, order_by)
             if isQueryOk is False:
@@ -109,10 +120,13 @@ class Database:
     # Devides the query into four arrays, the ones declared down below
     @staticmethod
     def queryTreatment(query):
-        whatToSelect = []
-        selectFrom   = []
-        where        = []
-        order_by     = []
+        whatToSelect    = []
+        selectFrom      = []
+        where           = []
+        order_by        = []
+        joins           = []
+        joinEquality    = []
+        joinEqlFiltered = []
 
         # Removes ; from the last word or removes it completely if it's only a ;
         if len(query[-1]) > 1:
@@ -152,7 +166,51 @@ class Database:
 
             iterator += 1
 
-        return whatToSelect, selectFrom, where, order_by
+        # Finding joins with join argument
+        iterator = 0
+        for iterator in range(len(selectFrom)):
+            if selectFrom[iterator] == 'inner' and selectFrom[iterator + 1] == 'join':
+                joins.append(selectFrom[iterator - 1])
+                joins.append(selectFrom[iterator + 2])
+                iterator += 2 # Might have to change the qnt of jumps
+            elif selectFrom[iterator] == 'join':
+                joins.append(selectFrom[iterator - 1])
+                joins.append(selectFrom[iterator + 1])
+                iterator += 1
+            elif selectFrom[iterator] == 'on' or selectFrom[iterator] == 'using':
+                joinEquality.append(selectFrom[iterator + 1].split('.'))
+                joinEquality.append(selectFrom[iterator + 3].split('.'))
+                iterator += 3
+
+        print(joinEquality)
+        if joinEquality != []:
+            for row in joinEquality:
+                joinEqlFiltered.append(row[1])
+
+        # Finding implicit joins in where statement
+        if joins == []:
+            iterator = 0
+            aux = []
+            for iterator in range(len(where)):
+                if where[iterator] == '=':
+                    # Comparison between tables attributes
+                    if '.' in where[iterator - 1] and '.' in where[iterator + 1]:
+                        aux.append(where[iterator - 1].split('.')) # Splits words into table name and attribute name
+                        aux.append(where[iterator + 1].split('.'))
+                        where = where[(iterator+2):]
+                        iterator += 2
+                        if iterator >= len(where):
+                            break # Double checking to avoid seg fault 
+
+            iterator = 0
+            if aux != []:
+                # Puts table names in joins and attributes in joinEqlFiltered
+                for row in aux:
+                    joinEqlFiltered.append(row[1])
+                    joins.append(row[0])
+
+
+        return whatToSelect, selectFrom, where, order_by, joins, joinEqlFiltered
 
     def isQuerySintaxOk(self, whatToSelect, selectFrom, where, order_by):
         sintaxOk = False
