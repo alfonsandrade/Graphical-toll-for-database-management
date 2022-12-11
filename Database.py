@@ -88,25 +88,25 @@ class Database:
             if whatToSelect[0] == "*":
                 if where == [] and order_by == []:
                     # Select * from chosen
-                    self.selectAllFrom(selectFrom)
+                    self.selectAllFrom(selectFrom, tablesToJoin, joinEquality)
                 elif where == []:
                     # Select * from chosen order by chum
-                    self.selectAllFromOrderBy(selectFrom, order_by)
+                    self.selectAllFromOrderBy(selectFrom, order_by, tablesToJoin, joinEquality)
                 elif order_by == []:
                     # Select * from chosen where lalos < ligos
-                    self.selectAllFromWhere(selectFrom, where)
+                    self.selectAllFromWhere(selectFrom, where, tablesToJoin, joinEquality)
                 else:
                     # Select * from chosen where paosdvaso order by oasivaosi
-                    self.selectAllFromWhereOrderBy(selectFrom, where, order_by)
+                    self.selectAllFromWhereOrderBy(selectFrom, where, order_by, tablesToJoin, joinEquality)
             else:
                 if where == [] and order_by == []:
-                    self.selectSomethingFrom(whatToSelect, selectFrom)
+                    self.selectSomethingFrom(whatToSelect, selectFrom, tablesToJoin, joinEquality)
                 elif where == []:
-                    self.selectSomethingFromOrderBy(whatToSelect, selectFrom, order_by)
+                    self.selectSomethingFromOrderBy(whatToSelect, selectFrom, order_by, tablesToJoin, joinEquality)
                 elif order_by == []:
-                    self.selectSomethingFromWhere(whatToSelect, selectFrom, where)
+                    self.selectSomethingFromWhere(whatToSelect, selectFrom, where, tablesToJoin, joinEquality)
                 else:
-                    self.selectSomethingFromWhereOrderBy(whatToSelect, selectFrom, where, order_by)
+                    self.selectSomethingFromWhereOrderBy(whatToSelect, selectFrom, where, order_by, tablesToJoin, joinEquality)
 
         print("Bye")
 
@@ -126,6 +126,16 @@ class Database:
                 if table.tableName == selectFrom[0]:
                     tablesToUse.append(table)
                     tableToPrint = table.tableContent
+        else:
+            for table in self.tables:
+                if table.tableName in tablesToJoin:
+                    print(table.tableName)
+                    tablesToUse.append(table)
+
+            tableToPrint = self.nestedLoopJoinTwoTables(tablesToUse[0].tableContent,
+                                                        tablesToUse[1].tableContent,
+                                                        tablesToUse[0].collumnNames[joinEquality[0]],
+                                                        tablesToUse[1].collumnNames[joinEquality[1]])
 
         for table in tablesToUse:
             print("|                " + table.tableName + "                |", end = '')
@@ -140,24 +150,46 @@ class Database:
 
         print("\n")
 
+        return
+
     # select * from something order by something
     def selectAllFromOrderBy(self, selectFrom, order_by, tablesToJoin, joinEquality):
-        for table in self.tables:
-            if table.tableName == selectFrom[0]:
-                tableToUse = table
+        tablesToUse  = []
+        tableToPrint = []
 
-        orderedTable = self.mergeSortByCollumn(tableToUse.tableContent, 0, len(tableToUse.tableContent)-1, tableToUse.collumnNames[order_by[0]])
+        if tablesToJoin == []:     
+            for table in self.tables:
+                if table.tableName == selectFrom[0]:
+                    tablesToUse.append(table)
+            
+            orderedTable = self.mergeSortByCollumn(tablesToUse[0].tableContent, 0, len(tablesToUse[0].tableContent)-1, tablesToUse[0].collumnNames[order_by[0]])
+        
+        else:
+            for table in self.tables:
+                if table.tableName in tablesToJoin:
+                    print(table.tableName)
+                    tablesToUse.append(table)
+            
+            tableToPrint = self.nestedLoopJoinTwoTables(tablesToUse[0].tableContent,
+                                                        tablesToUse[1].tableContent,
+                                                        tablesToUse[0].collumnNames[joinEquality[0]],
+                                                        tablesToUse[1].collumnNames[joinEquality[1]])
+            
+            orderedTable = self.mergeSortByCollumn(tableToPrint, 0, len(tableToPrint)-1, tablesToUse[0].collumnNames[order_by[0]])
 
         if orderedTable != []:
-            print("|                " + tableToUse.tableName + "                |")
+            for table in tablesToUse:
+                print("|                " + table.tableName + "                |", end = '')
+            print('')
             print("|", end = '')
-            for line in tableToUse.collumnNames:
-                print("  "+line + "  |", end = '')
+            for table in tablesToUse:
+                for collum in table.collumnNames:
+                    print("  "+ collum + "  |", end = '')
             print("")
             for line in orderedTable:
                 print(line)
-        else:
-            print("This relation is empty.")
+
+            print("\n")
 
     # select * from something where something < 78
     def selectAllFromWhere(self, selectFrom, where, tablesToJoin, joinEquality):
@@ -206,26 +238,39 @@ class Database:
     ################################################################################
 
     def selectSomethingFrom(self, whatToSelect, selectFrom, tablesToJoin, joinEquality):
-        for table in self.tables:
-            if table.tableName == selectFrom[0]:
-                tableToUse = table
+        tablesToUse  = []
+        tableToPrint = []
 
-        print("|                " + tableToUse.tableName + "                |")
+        if tablesToJoin == []:
+            for table in self.tables:
+                if table.tableName == selectFrom[0]:
+                    tablesToUse.append(table)
+                    tableToPrint = table.tableContent
+        else: # If there is a join
+            for table in self.tables:
+                if table.tableName in tablesToJoin:
+                    print(table.tableName)
+                    tablesToUse.append(table)
+
+            tableToPrint = self.nestedLoopJoinTwoTables(tablesToUse[0].tableContent,
+                                                        tablesToUse[1].tableContent,
+                                                        tablesToUse[0].collumnNames[joinEquality[0]],
+                                                        tablesToUse[1].collumnNames[joinEquality[1]])
+
+        for table in tablesToUse:
+            print("|                " + table.tableName + "                |", end = '')
+        print('')
         print("|", end = '')
-
-        for attribute in whatToSelect:
-            print("  " + attribute + "  |", end = '')
+        for table in tablesToUse:
+            for collum in table.collumnNames:
+                print("  "+ collum + "  |", end = '')
         print("")
-
-        for line in tableToUse.tableContent:
-            print('|',  end = '')
-            for attribute in whatToSelect:
-                print("  ", end = "")
-                print(line[tableToUse.collumnNames[attribute]], end = "")
-                print("  |", end = '')
-            print('')
+        for line in tableToPrint:
+            print(line)
 
         print("\n")
+
+        return
 
     def selectSomethingFromOrderBy(self, whatToSelect, selectFrom, order_by, tablesToJoin, joinEquality):
         for table in self.tables:
@@ -336,7 +381,7 @@ class Database:
 
         return table
 
-    def manageWhere(self, where, tableToUse):
+    def manageWhere(self, where, tableToUse: Table):
         logicOperand        = []
         comparations        = []
         attributesToCompare = []
@@ -441,5 +486,31 @@ class Database:
 
         return filteredTable
 
-    def joinTwoTables(self, tablesToJoin, joinEquality):
-        return
+    def nestedLoopJoinTwoTables(self, outerTable, innerTable, outerCol, innerCol):
+        joinedRow     = []
+        joinedTable   = []
+        outerIterator = 0
+        innerIterator = 0
+
+        maxRowsOuter = len(outerTable)
+        maxRowsInner = len(innerTable)
+        while outerIterator < maxRowsOuter:
+            while innerIterator < maxRowsInner:
+                if outerTable[outerIterator][outerCol] == innerTable[innerIterator][innerCol]:
+                    for collumn in outerTable[outerIterator]:
+                        joinedRow.append(collumn)
+                    for collumn in innerTable[innerIterator]:
+                        joinedRow.append(collumn)
+                    joinedTable.append(joinedRow)
+                    joinedRow = []
+
+                innerIterator += 1
+            innerIterator = 0
+            outerIterator += 1
+
+        return joinedTable
+
+    def returnTable(self, tableName: str) -> Table:
+        for table in self.tables:
+            if table.tableName == tableName:
+                return table
