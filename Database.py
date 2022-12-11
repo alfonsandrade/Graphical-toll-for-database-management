@@ -118,16 +118,24 @@ class Database:
 
     # select * from something
     def selectAllFrom(self, selectFrom, tablesToJoin, joinEquality):
-        for table in self.tables:
-            if table.tableName == selectFrom[0]:
-                tableToUse = table
+        tablesToUse  = []
+        tableToPrint = []
 
-        print("|                " + tableToUse.tableName + "                |")
+        if tablesToJoin == []:
+            for table in self.tables:
+                if table.tableName == selectFrom[0]:
+                    tablesToUse.append(table)
+                    tableToPrint = table.tableContent
+
+        for table in tablesToUse:
+            print("|                " + table.tableName + "                |", end = '')
+        print('')
         print("|", end = '')
-        for line in tableToUse.collumnNames:
-            print("  "+line + "  |", end = '')
+        for table in tablesToUse:
+            for collum in table.collumnNames:
+                print("  "+ collum + "  |", end = '')
         print("")
-        for line in tableToUse.tableContent:
+        for line in tableToPrint:
             print(line)
 
         print("\n")
@@ -432,3 +440,6 @@ class Database:
             print("Couldn't compare attributes.\n")
 
         return filteredTable
+
+    def joinTwoTables(self, tablesToJoin, joinEquality):
+        return
