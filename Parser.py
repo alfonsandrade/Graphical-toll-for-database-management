@@ -81,7 +81,6 @@ class Parser:
             if iterator >= len(selectFrom):
                 break
 
-        print(joinEquality)
         # Join attributes
         if joinEquality != []:
             for row in joinEquality:
@@ -118,6 +117,15 @@ class Parser:
                     joinEqlFiltered.append(row[1])
                     tablesToJoin.append(row[0])
 
+        # Treating whatToSelect for when there is a join
+        if tablesToJoin != []:
+            iterator = 0
+            while iterator < len(whatToSelect):
+                if '.' in whatToSelect[iterator]:
+                    whatToSelect[iterator] = whatToSelect[iterator].split('.')
+                
+                iterator += 1
+
 
         return whatToSelect, selectFrom, where, order_by, tablesToJoin, joinEqlFiltered
 
@@ -153,7 +161,7 @@ class Parser:
                 print((len(tablesToJoin) - qntOfExistingTables), " tables in join statement don't exist")
 
         # Checks wether attributes do exist in the table
-        if syntaxOk is True and whatToSelect[0] != '*':
+        if syntaxOk is True and tablesToJoin == [] and whatToSelect[0] != '*':
             for attribute in whatToSelect:
                 for table in usedTables:
                     if attribute not in table.collumnNames:

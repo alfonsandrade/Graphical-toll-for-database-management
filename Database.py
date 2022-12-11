@@ -246,6 +246,23 @@ class Database:
                 if table.tableName == selectFrom[0]:
                     tablesToUse.append(table)
                     tableToPrint = table.tableContent
+
+            print("|                " + tablesToUse[0].tableName + "                |")
+            print("|", end = '')
+
+            for attribute in whatToSelect:
+                print("  "+ attribute + "  |", end = '')
+            print("")
+
+            for line in tablesToUse[0].tableContent:
+                print('|',  end = '')
+                for attribute in whatToSelect:
+                    print("  ", end = "")
+                    print(line[tablesToUse[0].collumnNames[attribute]], end = "")
+                    print("  |", end = '')
+                print('')
+
+            print("\n")
         else: # If there is a join
             for table in self.tables:
                 if table.tableName in tablesToJoin:
@@ -257,18 +274,24 @@ class Database:
                                                         tablesToUse[0].collumnNames[joinEquality[0]],
                                                         tablesToUse[1].collumnNames[joinEquality[1]])
 
-        for table in tablesToUse:
-            print("|                " + table.tableName + "                |", end = '')
-        print('')
-        print("|", end = '')
-        for table in tablesToUse:
-            for collum in table.collumnNames:
-                print("  "+ collum + "  |", end = '')
-        print("")
-        for line in tableToPrint:
-            print(line)
+            for table in tablesToUse:
+                print("|                " + table.tableName + "                |", end = '')
+            print('')
+            print("|", end = '')
+            for attribute in whatToSelect:
+                print("  "+ attribute[1] + "  |", end = '')
+            print("")
+            rowSelec = []
+            for line in tableToPrint:
+                print('|',  end = '')
+                for rowSelec in whatToSelect:
+                    tablitos = self.returnTable(rowSelec[0])
+                    print("  ", end = "")
+                    print(line[tablitos.collumnNames[rowSelec[1]]], end = "")
+                    print("  |", end = '')
+                print('')
 
-        print("\n")
+            print("\n")
 
         return
 
