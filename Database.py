@@ -287,7 +287,10 @@ class Database:
                 for rowSelec in whatToSelect:
                     tablitos = self.returnTable(rowSelec[0])
                     print("  ", end = "")
-                    print(line[tablitos.collumnNames[rowSelec[1]]], end = "")
+                    if tablitos.tableName == tablesToUse[0].tableName:
+                        print(line[tablitos.collumnNames[rowSelec[1]]], end = "")
+                    else:
+                        print(line[tablitos.collumnNames[rowSelec[1]] + len(tablesToUse[0].collumnNames)], end = "")
                     print("  |", end = '')
                 print('')
 
@@ -296,28 +299,69 @@ class Database:
         return
 
     def selectSomethingFromOrderBy(self, whatToSelect, selectFrom, order_by, tablesToJoin, joinEquality):
-        for table in self.tables:
-            if table.tableName == selectFrom[0]:
-                tableToUse = table
+        tablesToUse  = []
+        tableToPrint = []
 
-        orderedTable = self.mergeSortByCollumn(tableToUse.tableContent, 0, len(tableToUse.tableContent)-1, tableToUse.collumnNames[order_by[0]])
+        if tablesToJoin == []:
+            for table in self.tables:
+                if table.tableName == selectFrom[0]:
+                    tablesToUse.append(table)
+                    tableToPrint = table.tableContent
 
-        print("|                " + tableToUse.tableName + "                |")
-        print("|", end = '')
+            orderedTable = self.mergeSortByCollumn(tablesToUse[0].tableContent, 0, len(tablesToUse[0].tableContent)-1, tablesToUse[0].collumnNames[order_by[0]])
 
-        for attribute in whatToSelect:
-            print("  "+ attribute + "  |", end = '')
-        print("")
+            print("|                " + tablesToUse[0].tableName + "                |")
+            print("|", end = '')
 
-        for line in orderedTable:
-            print('|',  end = '')
             for attribute in whatToSelect:
-                print("  ", end = "")
-                print(line[tableToUse.collumnNames[attribute]], end = "")
-                print("  |", end = '')
-            print('')
+                print("  "+ attribute + "  |", end = '')
+            print("")
 
-        print("\n")
+            for line in orderedTable:
+                print('|',  end = '')
+                for attribute in whatToSelect:
+                    print("  ", end = "")
+                    print(line[tablesToUse[0].collumnNames[attribute]], end = "")
+                    print("  |", end = '')
+                print('')
+
+            print("\n")
+        else: # If there is a join
+            for table in self.tables:
+                if table.tableName in tablesToJoin:
+                    print(table.tableName)
+                    tablesToUse.append(table)
+
+            tableToPrint = self.nestedLoopJoinTwoTables(tablesToUse[0].tableContent,
+                                                        tablesToUse[1].tableContent,
+                                                        tablesToUse[0].collumnNames[joinEquality[0]],
+                                                        tablesToUse[1].collumnNames[joinEquality[1]])
+
+            orderedTable = self.mergeSortByCollumn(tableToPrint, 0, len(tableToPrint)-1, tablesToUse[0].collumnNames[order_by[0]])
+
+            for table in tablesToUse:
+                print("|                " + table.tableName + "                |", end = '')
+            print('')
+            print("|", end = '')
+            for attribute in whatToSelect:
+                print("  "+ attribute[1] + "  |", end = '')
+            print("")
+            rowSelec = []
+            for line in orderedTable:
+                print('|',  end = '')
+                for rowSelec in whatToSelect:
+                    tablitos = self.returnTable(rowSelec[0])
+                    print("  ", end = "")
+                    if tablitos.tableName == tablesToUse[0].tableName:
+                        print(line[tablitos.collumnNames[rowSelec[1]]], end = "")
+                    else:
+                        print(line[tablitos.collumnNames[rowSelec[1]] + len(tablesToUse[0].collumnNames)], end = "")
+                    print("  |", end = '')
+                print('')
+
+            print("\n")
+
+        return
 
     def selectSomethingFromWhere(self, whatToSelect, selectFrom, where, tablesToJoin, joinEquality):
         for table in self.tables:

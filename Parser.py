@@ -192,8 +192,17 @@ class Parser:
                     syntaxOk = False
 
         # Checks if order by attributes are in what to select
-        if syntaxOk is True and order_by != [] and whatToSelect[0] != '*' and order_by[0] not in whatToSelect:
-            print("There is an error in your SQL sintax.\n")
-            syntaxOk = False
+        if syntaxOk is True and order_by != [] and whatToSelect[0] != '*':
+            if tablesToJoin == []:
+                if order_by[0] not in whatToSelect:
+                    syntaxOk = False
+            else:
+                syntaxOk = False
+                for row in whatToSelect:
+                    if row[1] == order_by[0]:
+                        syntaxOk = True
+
+            if syntaxOk == False:
+                print("There is an error in your SQL sintax.\n")
 
         return syntaxOk
