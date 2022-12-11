@@ -193,19 +193,37 @@ class Database:
 
     # select * from something where something < 78
     def selectAllFromWhere(self, selectFrom, where, tablesToJoin, joinEquality):
-        for table in self.tables:
-            if table.tableName == selectFrom[0]:
-                tableToUse = table
+        tablesToUse  = []
+        tableToPrint = []
+        
+        if tablesToJoin == []:
+            for table in self.tables:
+                if table.tableName == selectFrom[0]:
+                    tableToUse = table
 
-        filteredTable = self.manageWhere(where, tableToUse)
+            tableToPrint = self.manageWhere(where, tableToUse)
 
-        if filteredTable != []:
+        else:
+            for table in self.tables:
+                if table.tableName in tablesToJoin:
+                    print(table.tableName)
+                    tablesToUse.append(table)
+            
+            filteredTable1 = self.manageWhere(where, tableToUse[0])
+            filteredTable2 = self.manageWhere(where, tableToUse[1])
+            
+            tableToPrint = self.nestedLoopJoinTwoTables(filteredTable1[0].tableContent,
+                                                        filteredTable2[1].tableContent,
+                                                        filteredTable1[0].collumnNames[joinEquality[0]],
+                                                        filteredTable2[1].collumnNames[joinEquality[1]])            
+        
+        if tableToPrint != []:
             print("|                " + tableToUse.tableName + "                |")
             print("|", end = '')
             for line in tableToUse.collumnNames:
                 print("  "+line + "  |", end = '')
             print("")
-            for line in filteredTable:
+            for line in tableToPrint:
                 print(line)
         else:
             print("This relation is empty.")
@@ -213,25 +231,57 @@ class Database:
         print("\n")
 
     def selectAllFromWhereOrderBy(self, selectFrom, where, order_by, tablesToJoin, joinEquality):
-        for table in self.tables:
-            if table.tableName == selectFrom[0]:
-                tableToUse = table
+        tablesToUse  = []
+        tableToPrint = []
+        
+        if tablesToJoin == []:
+            for table in self.tables:
+                if table.tableName == selectFrom[0]:
+                    tableToUse = table
 
-        filteredTable = self.manageWhere(where, tableToUse)
-        filteredTable = self.mergeSortByCollumn(filteredTable, 0, len(filteredTable)-1, tableToUse.collumnNames[order_by[0]])
-
-        if filteredTable != []:
-            print("|                " + tableToUse.tableName + "                |")
-            print("|", end = '')
-            for line in tableToUse.collumnNames:
-                print("  "+line + "  |", end = '')
-            print("")
-            for line in filteredTable:
-                print(line)
+            tableToPrint = self.manageWhere(where, tableToUse)
+            tableToPrint = self.mergeSortByCollumn(tableToPrint, 0, len(tableToPrint)-1, tableToUse.collumnNames[order_by[0]])
+        
+            if tableToPrint != []:
+                print("|                " + tableToUse.tableName + "                |")
+                print("|", end = '')
+                for line in tableToUse.collumnNames:
+                    print("  "+line + "  |", end = '')
+                print("")
+                for line in tableToPrint:
+                    print(line)
+            else:
+                print("This relation is empty.")
+        
         else:
-            print("This relation is empty.")
+            for table in self.tables:
+                if table.tableName in tablesToJoin:
+                    print(table.tableName)
+                    tablesToUse.append(table)
 
-        print("\n")
+            filteredTable1 = self.manageWhere(where, tableToUse[0])
+            filteredTable2 = self.manageWhere(where, tableToUse[1])
+            
+            tableToPrint = self.nestedLoopJoinTwoTables(filteredTable1[0].tableContent,
+                                                        filteredTable2[1].tableContent,
+                                                        filteredTable1[0].collumnNames[joinEquality[0]],
+                                                        filteredTable2[1].collumnNames[joinEquality[1]])
+            
+            orderedTable = self.mergeSortByCollumn(tableToPrint, 0, len(tableToPrint)-1, tablesToUse[0].collumnNames[order_by[0]])             
+
+            if orderedTable != []:
+                for table in tablesToUse:
+                    print("|                " + table.tableName + "                |", end = '')
+                print('')
+                print("|", end = '')
+                for table in tablesToUse:
+                    for collum in table.collumnNames:
+                        print("  "+ collum + "  |", end = '')
+                print("")
+                for line in orderedTable:
+                    print(line)
+
+                print("\n")
 
     ################################################################################
     ########################## QUERY ALGORITHMS WITHOUT * ##########################
