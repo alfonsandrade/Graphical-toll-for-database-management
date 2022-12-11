@@ -49,6 +49,10 @@ def loadFile():
     dataBase = Database(folder1)
     dataBase.searchLoop()
 
+    gui.destroy()
+
+    return
+
 directorySelect = FolderSelect(gui,"Select Folder ")
 directorySelect.grid(row=0)
 

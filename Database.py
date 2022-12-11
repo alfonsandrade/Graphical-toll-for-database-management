@@ -10,7 +10,8 @@ import os
 
 sys.setrecursionlimit(1000)
 
-from Table import Table
+from Table  import Table
+from Parser import Parser
 
 class Database:
     def __init__(self, dirPath : str):
@@ -45,6 +46,7 @@ class Database:
         order_by     = []
         tablesToJoin = []
         joinEquality = []
+        parser       = Parser()
 
         print("\nThis DB tool uses spaces as a separator for all words and symbols. Don't forget the ; in the end \nYou may now write your queries:\n")
 
@@ -59,11 +61,11 @@ class Database:
 
             print(query)
 
-            isQueryOk = self.verifyPointCommaInTheEnd(query)
+            isQueryOk = parser.verifyPointCommaInTheEnd(query)
             if isQueryOk is False:
                 continue
 
-            result = self.queryTreatment(query)
+            result = parser.queryTreatment(query)
 
             whatToSelect = result[0]
             selectFrom   = result[1]
@@ -79,7 +81,7 @@ class Database:
             print(tablesToJoin)
             print(joinEquality)
 
-            isQueryOk = self.isQuerySintaxOk(whatToSelect, selectFrom, where, order_by)
+            isQueryOk = parser.isQuerySyntaxOk(self.tables, whatToSelect, selectFrom, where, order_by, tablesToJoin, joinEquality)
             if isQueryOk is False:
                 continue
 
@@ -108,153 +110,14 @@ class Database:
 
         print("Bye")
 
+        return
 
-    @staticmethod
-    def verifyPointCommaInTheEnd(query) -> bool:
-        if ';' in query[-1]:
-            return True
-        print("There is an error in your SQL sintax. Expected ';'.")
-        return False
-
-
-    # Devides the query into four arrays, the ones declared down below
-    @staticmethod
-    def queryTreatment(query):
-        whatToSelect    = []
-        selectFrom      = []
-        where           = []
-        order_by        = []
-        joins           = []
-        joinEquality    = []
-        joinEqlFiltered = []
-
-        # Removes ; from the last word or removes it completely if it's only a ;
-        if len(query[-1]) > 1:
-            query[-1] = query[-1][-1]
-        else:
-            query = query[:-1]
-
-        iterator  = 0
-
-        # Semaphore used to sinalize what part of the query the iterator is currently running on
-        # 1 - select
-        # 2 - from
-        # 3 - where
-        # 4 - order by
-        semaphore = 0 
-        while iterator < len(query):
-            if query[iterator].lower() == "select":
-                semaphore = 1
-            elif query[iterator].lower() == "from":
-                semaphore = 2
-            elif query[iterator].lower() == "where":
-                semaphore = 3
-            elif query[iterator].lower() == "order":
-                semaphore = 4
-                iterator += 1 # To jump the "by" word
-            else:
-                if semaphore == 1:
-                    whatToSelect.append(query[iterator])
-                elif semaphore == 2:
-                    selectFrom.append(query[iterator])
-                elif semaphore == 3:
-                    where.append(query[iterator])
-                elif semaphore == 4:
-                    order_by.append(query[iterator])
-                else:
-                    pass
-
-            iterator += 1
-
-        # Finding joins with join argument
-        iterator = 0
-        for iterator in range(len(selectFrom)):
-            if selectFrom[iterator] == 'inner' and selectFrom[iterator + 1] == 'join':
-                joins.append(selectFrom[iterator - 1])
-                joins.append(selectFrom[iterator + 2])
-                iterator += 2 # Might have to change the qnt of jumps
-            elif selectFrom[iterator] == 'join':
-                joins.append(selectFrom[iterator - 1])
-                joins.append(selectFrom[iterator + 1])
-                iterator += 1
-            elif selectFrom[iterator] == 'on' or selectFrom[iterator] == 'using':
-                joinEquality.append(selectFrom[iterator + 1].split('.'))
-                joinEquality.append(selectFrom[iterator + 3].split('.'))
-                iterator += 3
-
-        print(joinEquality)
-        if joinEquality != []:
-            for row in joinEquality:
-                joinEqlFiltered.append(row[1])
-
-        # Finding implicit joins in where statement
-        if joins == []:
-            iterator = 0
-            aux = []
-            for iterator in range(len(where)):
-                if where[iterator] == '=':
-                    # Comparison between tables attributes
-                    if '.' in where[iterator - 1] and '.' in where[iterator + 1]:
-                        aux.append(where[iterator - 1].split('.')) # Splits words into table name and attribute name
-                        aux.append(where[iterator + 1].split('.'))
-                        where = where[(iterator+2):]
-                        iterator += 2
-                        if iterator >= len(where):
-                            break # Double checking to avoid seg fault 
-
-            iterator = 0
-            if aux != []:
-                # Puts table names in joins and attributes in joinEqlFiltered
-                for row in aux:
-                    joinEqlFiltered.append(row[1])
-                    joins.append(row[0])
-
-
-        return whatToSelect, selectFrom, where, order_by, joins, joinEqlFiltered
-
-    def isQuerySintaxOk(self, whatToSelect, selectFrom, where, order_by):
-        sintaxOk = False
-
-        # Finds table to be used
-        if whatToSelect == []:
-            print("There is nothing to select.\n")
-        elif selectFrom == []:
-            print("No table to select from.\n")
-        else:
-            for table in self.tables:
-                if table.tableName == selectFrom[0]:
-                    usedTable = table
-                    sintaxOk  = True
-            # Relations table was not found
-            if sintaxOk is False:
-                print("Error: no table called " + selectFrom[0] + " was found.\n")
-
-
-            # Checks rathen attributes do exist in the table
-            if sintaxOk is True and whatToSelect[0] != '*':
-                for attribute in whatToSelect:
-                    if attribute not in usedTable.collumnNames:
-                        print("Error: there is no " + attribute + " in " + usedTable.tableName + "\n")
-                        sintaxOk = False
-
-            # Checks rathen order_by attributes do exist in the table
-            if sintaxOk is True and order_by != []:
-                for attribute in order_by:
-                    if attribute not in usedTable.collumnNames:
-                        print("Error: there is no " + attribute + " in " + usedTable.tableName + "\n")
-                        sintaxOk = False
-
-            # Checks if order by attributes are in what to select
-            if sintaxOk is True and order_by != [] and whatToSelect[0] != '*' and order_by[0] not in whatToSelect:
-                print("There is an error in your SQL sintax.\n")
-                sintaxOk = False
-
-        return sintaxOk
-
+    ##################################################################################
     ########################## QUERY ALGORYTHMS WITH * ###############################
+    ##################################################################################
 
     # select * from something
-    def selectAllFrom(self, selectFrom):
+    def selectAllFrom(self, selectFrom, tablesToJoin, joinEquality):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
                 tableToUse = table
@@ -270,7 +133,7 @@ class Database:
         print("\n")
 
     # select * from something order by something
-    def selectAllFromOrderBy(self, selectFrom, order_by):
+    def selectAllFromOrderBy(self, selectFrom, order_by, tablesToJoin, joinEquality):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
                 tableToUse = table
@@ -289,7 +152,7 @@ class Database:
             print("This relation is empty.")
 
     # select * from something where something < 78
-    def selectAllFromWhere(self, selectFrom, where):        
+    def selectAllFromWhere(self, selectFrom, where, tablesToJoin, joinEquality):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
                 tableToUse = table
@@ -309,7 +172,7 @@ class Database:
 
         print("\n")
 
-    def selectAllFromWhereOrderBy(self, selectFrom, where, order_by):
+    def selectAllFromWhereOrderBy(self, selectFrom, where, order_by, tablesToJoin, joinEquality):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
                 tableToUse = table
@@ -330,9 +193,11 @@ class Database:
 
         print("\n")
 
+    ################################################################################
     ########################## QUERY ALGORITHMS WITHOUT * ##########################
+    ################################################################################
 
-    def selectSomethingFrom(self, whatToSelect, selectFrom):
+    def selectSomethingFrom(self, whatToSelect, selectFrom, tablesToJoin, joinEquality):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
                 tableToUse = table
@@ -354,7 +219,7 @@ class Database:
 
         print("\n")
 
-    def selectSomethingFromOrderBy(self, whatToSelect, selectFrom, order_by):
+    def selectSomethingFromOrderBy(self, whatToSelect, selectFrom, order_by, tablesToJoin, joinEquality):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
                 tableToUse = table
@@ -378,7 +243,7 @@ class Database:
 
         print("\n")
 
-    def selectSomethingFromWhere(self, whatToSelect, selectFrom, where):
+    def selectSomethingFromWhere(self, whatToSelect, selectFrom, where, tablesToJoin, joinEquality):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
                 tableToUse = table
@@ -399,7 +264,7 @@ class Database:
 
         print("\n")
 
-    def selectSomethingFromWhereOrderBy(self, whatToSelect, selectFrom, where, order_by):
+    def selectSomethingFromWhereOrderBy(self, whatToSelect, selectFrom, where, order_by, tablesToJoin, joinEquality):
         for table in self.tables:
             if table.tableName == selectFrom[0]:
                 tableToUse = table
