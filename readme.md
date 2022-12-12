@@ -39,3 +39,13 @@ To write correctly simply **put a blank space between all words and sybols** and
 ```terminal
 select id birth_date first_name from employees where first_name = John and id > 50397 order by birth_date ;
 ```
+
+### Join sintax
+
+To include join ?attribute? in the application some traits have to be added in query sintax, firstly the query must place join before **where** and **order by** parameters, after that the parameters only applies to the outer table failing if you consider the inner one for the conditions.
+
+**Query example**
+
+```terminal
+select departments.dept_name dept_manager.dept_no from departments join dept_manager on dept_manager.dept_no = departments.dept_no where emp_no > 111000 order by dept_name ;
+```
