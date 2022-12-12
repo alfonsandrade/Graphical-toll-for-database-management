@@ -40,7 +40,7 @@ To write correctly simply **put a blank space between all words and sybols** and
 select id birth_date first_name from employees where first_name = John and id > 50397 order by birth_date ;
 ```
 
-### Join sintax
+### Join syntax
 
 To include _join_ in the application, some traits have to be considered in query syntax. Firstly, the query must be ordered with _join_ before **where** and **order by** parameters. After that, they only apply to the inner table, failing if you consider the outer one for the conditions. The query will accept the terms **on** or **using**  for _join_.
 
