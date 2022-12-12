@@ -199,9 +199,9 @@ class Database:
         if tablesToJoin == []:
             for table in self.tables:
                 if table.tableName == selectFrom[0]:
-                    tableToUse = table
+                    tablesToUse.append(table)
 
-            tableToPrint = self.manageWhere(where, tableToUse)
+            tableToPrint = self.manageWhere(where, tablesToUse[0])
 
         else:
             for table in self.tables:
@@ -209,24 +209,27 @@ class Database:
                     print(table.tableName)
                     tablesToUse.append(table)
             
-            filteredTable1 = self.manageWhere(where, tableToUse[0])
-            filteredTable2 = self.manageWhere(where, tableToUse[1])
+            filteredTable1 = self.manageWhere(where, tablesToUse[0])
+            # filteredTable2 = self.manageWhere(where, tableToUse[1])
             
-            tableToPrint = self.nestedLoopJoinTwoTables(filteredTable1[0].tableContent,
-                                                        filteredTable2[1].tableContent,
-                                                        filteredTable1[0].collumnNames[joinEquality[0]],
-                                                        filteredTable2[1].collumnNames[joinEquality[1]])            
+            tableToPrint = self.nestedLoopJoinTwoTables(filteredTable1,
+                                                        tablesToUse[1].tableContent,
+                                                        tablesToUse[0].collumnNames[joinEquality[0]],
+                                                        tablesToUse[1].collumnNames[joinEquality[1]])
         
         if tableToPrint != []:
-            print("|                " + tableToUse.tableName + "                |")
+            for table in tablesToUse:
+                print("|                " + table.tableName + "                |", end = '')
+            print('')
             print("|", end = '')
-            for line in tableToUse.collumnNames:
-                print("  "+line + "  |", end = '')
+            for table in tablesToUse:
+                for collum in table.collumnNames:
+                    print("  "+ collum + "  |", end = '')
             print("")
             for line in tableToPrint:
                 print(line)
-        else:
-            print("This relation is empty.")
+
+            print("\n")
 
         print("\n")
 
@@ -259,13 +262,13 @@ class Database:
                     print(table.tableName)
                     tablesToUse.append(table)
 
-            filteredTable1 = self.manageWhere(where, tableToUse[0])
-            filteredTable2 = self.manageWhere(where, tableToUse[1])
+            filteredTable1 = self.manageWhere(where, tablesToUse[0])
+            # filteredTable2 = self.manageWhere(where, tableToUse[1])
             
-            tableToPrint = self.nestedLoopJoinTwoTables(filteredTable1[0].tableContent,
-                                                        filteredTable2[1].tableContent,
-                                                        filteredTable1[0].collumnNames[joinEquality[0]],
-                                                        filteredTable2[1].collumnNames[joinEquality[1]])
+            tableToPrint = self.nestedLoopJoinTwoTables(filteredTable1,
+                                                        tablesToUse[1].tableContent,
+                                                        tablesToUse[0].collumnNames[joinEquality[0]],
+                                                        tablesToUse[1].collumnNames[joinEquality[1]])
             
             orderedTable = self.mergeSortByCollumn(tableToPrint, 0, len(tableToPrint)-1, tablesToUse[0].collumnNames[order_by[0]])             
 
@@ -519,7 +522,7 @@ class Database:
         while iterator < len(attributesToCompare):
             if attributesToCompare[iterator] in tableToUse.collumnNames:
                 valueSinalizer.append(0)
-            else:
+            elif attributesToCompare[iterator] != '':
                 valueSinalizer.append(1)
                 try:
                     attributesToCompare[iterator] = int(attributesToCompare[iterator])
