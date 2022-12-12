@@ -149,8 +149,8 @@ class Parser:
                 print("Error: no table called " + selectFrom[0] + " was found.\n")
         else: # Queries with join
             qntOfExistingTables = 0
-            for table in relations:
-                for joinTableName in tablesToJoin:
+            for joinTableName in tablesToJoin:
+                for table in relations:
                     if table.tableName == joinTableName:
                         usedTables.append(table)
                         qntOfExistingTables += 1
@@ -162,16 +162,16 @@ class Parser:
 
         # Checks wether attributes do exist in the table
         if syntaxOk is True and tablesToJoin == [] and whatToSelect[0] != '*':
-            for attribute in whatToSelect:
-                for table in usedTables:
+            for table in usedTables:
+                for attribute in whatToSelect:
                     if attribute not in table.collumnNames:
                         print("Error: there is no " + attribute + " in " + table.tableName + "\n")
                         syntaxOk = False
 
         # Checks wether order_by attributes do exist in the table
         if syntaxOk is True and order_by != []:
-            for attribute in order_by:
-                for table in usedTables:
+            for table in usedTables:
+                for attribute in order_by:
                     if attribute not in table.collumnNames:
                         print("Error: there is no " + attribute + " in " + table.tableName + "\n")
                         syntaxOk = False

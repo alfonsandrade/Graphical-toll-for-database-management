@@ -48,6 +48,7 @@ class Database:
         joinEquality = []
         parser       = Parser()
 
+        print("\nWhere and Order By parameters are only applied to the inner table, failing if you consider the outer one for the conditions.\nThe query will accept the terms >on< or >using< for join.")
         print("\nThis DB tool uses spaces as a separator for all words and symbols. Don't forget the ; in the end \nYou may now write your queries:\n")
 
         # Mainloop for searching in database
@@ -129,7 +130,6 @@ class Database:
         else:
             for table in self.tables:
                 if table.tableName in tablesToJoin:
-                    print(table.tableName)
                     tablesToUse.append(table)
 
             tableToPrint = self.nestedLoopJoinTwoTables(tablesToUse[0].tableContent,
@@ -167,7 +167,6 @@ class Database:
         else:
             for table in self.tables:
                 if table.tableName in tablesToJoin:
-                    print(table.tableName)
                     tablesToUse.append(table)
             
             tableToPrint = self.nestedLoopJoinTwoTables(tablesToUse[0].tableContent,
@@ -206,7 +205,6 @@ class Database:
         else:
             for table in self.tables:
                 if table.tableName in tablesToJoin:
-                    print(table.tableName)
                     tablesToUse.append(table)
             
             filteredTable1 = self.manageWhere(where, tablesToUse[0])
@@ -259,7 +257,6 @@ class Database:
         else:
             for table in self.tables:
                 if table.tableName in tablesToJoin:
-                    print(table.tableName)
                     tablesToUse.append(table)
 
             filteredTable1 = self.manageWhere(where, tablesToUse[0])
@@ -270,7 +267,7 @@ class Database:
                                                         tablesToUse[0].collumnNames[joinEquality[0]],
                                                         tablesToUse[1].collumnNames[joinEquality[1]])
             
-            orderedTable = self.mergeSortByCollumn(tableToPrint, 0, len(tableToPrint)-1, tablesToUse[0].collumnNames[order_by[0]])             
+            orderedTable = self.mergeSortByCollumn(tableToPrint, 0, len(tableToPrint)-1, tablesToUse[0].collumnNames[order_by[0]])
 
             if orderedTable != []:
                 for table in tablesToUse:
@@ -319,7 +316,6 @@ class Database:
         else: # If there is a join
             for table in self.tables:
                 if table.tableName in tablesToJoin:
-                    print(table.tableName)
                     tablesToUse.append(table)
 
             tableToPrint = self.nestedLoopJoinTwoTables(tablesToUse[0].tableContent,
@@ -382,7 +378,6 @@ class Database:
         else: # If there is a join
             for table in self.tables:
                 if table.tableName in tablesToJoin:
-                    print(table.tableName)
                     tablesToUse.append(table)
 
             tableToPrint = self.nestedLoopJoinTwoTables(tablesToUse[0].tableContent,
@@ -417,49 +412,137 @@ class Database:
         return
 
     def selectSomethingFromWhere(self, whatToSelect, selectFrom, where, tablesToJoin, joinEquality):
-        for table in self.tables:
-            if table.tableName == selectFrom[0]:
-                tableToUse = table
+        tablesToUse  = []
+        tableToPrint = []
 
-        filteredTable = self.manageWhere(where, tableToUse)
+        if tablesToJoin == []:
+            for table in self.tables:
+                if table.tableName == selectFrom[0]:
+                    tablesToUse.append(table)
 
-        for attribute in whatToSelect:
-            print("  "+ attribute + "  |", end = '')
-        print("")
+            tableToPrint = self.manageWhere(where, tablesToUse[0])
 
-        for line in filteredTable:
-            print('|',  end = '')
+            print("|                " + tablesToUse[0].tableName + "                |")
+            print("|", end = '')
+
             for attribute in whatToSelect:
-                print("  ", end = "")
-                print(line[tableToUse.collumnNames[attribute]], end = "")
-                print("  |", end = '')
-            print('')
+                print("  "+ attribute + "  |", end = '')
+            print("")
 
-        print("\n")
+            for line in tablesToUse[0].tableContent:
+                print('|',  end = '')
+                for attribute in whatToSelect:
+                    print("  ", end = "")
+                    print(line[tablesToUse[0].collumnNames[attribute]], end = "")
+                    print("  |", end = '')
+                print('')
+
+            print("\n")
+        else: # If there is a join
+            for table in self.tables:
+                if table.tableName in tablesToJoin:
+                    tablesToUse.append(table)
+
+            filteredTable1 = self.manageWhere(where, tablesToUse[0])
+
+            tableToPrint = self.nestedLoopJoinTwoTables(filteredTable1,
+                                                        tablesToUse[1].tableContent,
+                                                        tablesToUse[0].collumnNames[joinEquality[0]],
+                                                        tablesToUse[1].collumnNames[joinEquality[1]])
+
+            for table in tablesToUse:
+                print("|                " + table.tableName + "                |", end = '')
+            print('')
+            print("|", end = '')
+            for attribute in whatToSelect:
+                print("  "+ attribute[1] + "  |", end = '')
+            print("")
+            rowSelec = []
+            for line in tableToPrint:
+                print('|',  end = '')
+                for rowSelec in whatToSelect:
+                    tablitos = self.returnTable(rowSelec[0])
+                    print("  ", end = "")
+                    if tablitos.tableName == tablesToUse[0].tableName:
+                        print(line[tablitos.collumnNames[rowSelec[1]]], end = "")
+                    else:
+                        print(line[tablitos.collumnNames[rowSelec[1]] + len(tablesToUse[0].collumnNames)], end = "")
+                    print("  |", end = '')
+                print('')
+
+            print("\n")
+
+        return
 
     def selectSomethingFromWhereOrderBy(self, whatToSelect, selectFrom, where, order_by, tablesToJoin, joinEquality):
-        for table in self.tables:
-            if table.tableName == selectFrom[0]:
-                tableToUse = table
+        tablesToUse  = []
+        tableToPrint = []
 
-        filteredTable = self.manageWhere(where, tableToUse)
-        filteredTable = self.mergeSortByCollumn(filteredTable, 0, len(filteredTable)-1, tableToUse.collumnNames[order_by[0]])
+        if tablesToJoin == []:
+            for table in self.tables:
+                if table.tableName == selectFrom[0]:
+                    tablesToUse.append(table)
 
-        for attribute in whatToSelect:
-            print("  "+ attribute + "  |", end = '')
-        print("")
+            tableToPrint = self.manageWhere(where, tablesToUse[0])
+            tableToPrint = self.mergeSortByCollumn(tableToPrint, 0, len(tableToPrint)-1, tablesToUse[0].collumnNames[order_by[0]])
 
-        for line in filteredTable:
-            print('|',  end = '')
+            print("|                " + tablesToUse[0].tableName + "                |")
+            print("|", end = '')
+
             for attribute in whatToSelect:
-                print("  ", end = "")
-                print(line[tableToUse.collumnNames[attribute]], end = "")
-                print("  |", end = '')
+                print("  "+ attribute + "  |", end = '')
+            print("")
+
+            for line in tablesToUse[0].tableContent:
+                print('|',  end = '')
+                for attribute in whatToSelect:
+                    print("  ", end = "")
+                    print(line[tablesToUse[0].collumnNames[attribute]], end = "")
+                    print("  |", end = '')
+                print('')
+
+            print("\n")
+        else: # If there is a join
+            for table in self.tables:
+                if table.tableName in tablesToJoin:
+                    tablesToUse.append(table)
+
+            filteredTable1 = self.manageWhere(where, tablesToUse[0])
+
+            tableToPrint = self.nestedLoopJoinTwoTables(filteredTable1,
+                                                        tablesToUse[1].tableContent,
+                                                        tablesToUse[0].collumnNames[joinEquality[0]],
+                                                        tablesToUse[1].collumnNames[joinEquality[1]])
+
+            tableToPrint = self.mergeSortByCollumn(tableToPrint, 0, len(tableToPrint)-1, tablesToUse[0].collumnNames[order_by[0]])
+
+            for table in tablesToUse:
+                print("|                " + table.tableName + "                |", end = '')
             print('')
+            print("|", end = '')
+            for attribute in whatToSelect:
+                print("  "+ attribute[1] + "  |", end = '')
+            print("")
+            rowSelec = []
+            for line in tableToPrint:
+                print('|',  end = '')
+                for rowSelec in whatToSelect:
+                    tablitos = self.returnTable(rowSelec[0])
+                    print("  ", end = "")
+                    if tablitos.tableName == tablesToUse[0].tableName:
+                        print(line[tablitos.collumnNames[rowSelec[1]]], end = "")
+                    else:
+                        print(line[tablitos.collumnNames[rowSelec[1]] + len(tablesToUse[0].collumnNames)], end = "")
+                    print("  |", end = '')
+                print('')
 
-        print("\n")
+            print("\n")
 
+        return
 
+    ####################################################################
+    ################## AUXILIARY FUNCTIONS #############################
+    ####################################################################
 
     def mergeSortByCollumn(self, table, left: int, right: int, collumnNum: int):
         def telettubies(table, left: int, middle: int, right: int, collumnNum: int):
