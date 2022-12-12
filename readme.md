@@ -28,9 +28,9 @@ on your terminal, and a load screen will pop up. Choose the desired folder with 
 
 All .csv files will be loaded into memory as tables, and you can start to write your queries.
 
-### Query sintax
+### Query syntax
 
-The sintax is simpler than the MySQL one. It's separator is a **blank space**.
+The syntax is simpler than the MySQL one. It's separator is a **blank space**.
 
 To write correctly simply **put a blank space between all words and sybols** and then **put a ; in the end**. Any other syntax will cause problems. Press ENTER to run.
 
